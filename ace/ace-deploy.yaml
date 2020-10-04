@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: acepod
+  name: acepod
+  namespace: ace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: acepod
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: acepod
+    spec:
+      containers:
+      - image: jasperlanda/eod20-ace:latest
+        name: myace
+        resources: {}
+        env:
+        - name: LICENSE
+          value: accept
+        - name: ACE_SERVER_NAME
+          value: K8SSERVER
+      imagePullSecrets:
+      - name: regcred
+status: {}

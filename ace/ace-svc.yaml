@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: ace
+  name: ace-svc
+  labels:
+    app: acepod
+spec:
+  ports:
+  - port: 7600
+    protocol: TCP
+    targetPort: 7600
+    name: ace-admin
+  - port: 7800
+    protocol: TCP
+    targetPort: 7800
+    name: ace-http
+  - port: 7843
+    protocol: TCP
+    targetPort: 7843
+    name: ace-https
+  - port: 10009
+    protocol: TCP
+    targetPort: 10009
+    name: ace-debug
+  selector:
+    app: acepod
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer: {}
