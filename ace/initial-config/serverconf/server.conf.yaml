@@ -157,12 +157,12 @@ UserExits:
   #userExitPath: ''              # Specify the path or paths containing the user exists to be loaded. Multiple paths should be separated by colons on Unix and semi-colons on Windows.
 
 BrokerRegistry:
-  #brokerKeystoreType: 'JKS'                          # Key store type
-  #brokerKeystoreFile: ''                             # Location of the broker key store
-  #brokerKeystorePass: 'brokerKeystore::password'     # Resource alias containing the key store password
-  #brokerTruststoreType: 'JKS'                        # Trust store type
-  #brokerTruststoreFile: ''                           # Location of the broker trust store
-  #brokerTruststorePass: 'brokerTruststore::password' # Resource alias containing the trust store password
+  brokerKeystoreType: 'JKS'                          # Key store type
+  brokerKeystoreFile: '.keystore'                             # Location of the broker key store
+  brokerKeystorePass: 'brokerKeystore::password'     # Resource alias containing the key store password
+  brokerTruststoreType: 'JKS'                        # Trust store type
+  brokerTruststoreFile: '.truststore'                           # Location of the broker trust store
+  brokerTruststorePass: 'brokerTruststore::password' # Resource alias containing the trust store password
   #brokerCRLFileList: ''
   #brokerEnableCRLDP: ''
   #allowSSLv3: ''
@@ -188,12 +188,12 @@ ResourceManagers:
     #jvmMaxHeapSize: 268435456       # maximum JVM heap size in bytes (256MB)
     jvmDebugPort: 10009                 # Set non-zero to activate JVM debug port for Toolkit debugging
     #jvmSystemProperty: ''
-    #keystoreType: ''                # JVM key store type
-    #keystoreFile: ''                # JVM location of the key store
-    #keystorePass: ''                # JVM resource alias containing the key store password
-    #truststoreType: '               # JVM trust store type
-    #truststoreFile: ''              # JVM location of the trust store
-    #truststorePass: ''              # JVM resource alias containing the trust store password
+    keystoreType: 'JKS'                # JVM key store type
+    keystoreFile: '.keystore'                # JVM location of the key store
+    keystorePass: 'key'                # JVM resource alias containing the key store password
+    truststoreType: 'JKS'               # JVM trust store type
+    truststoreFile: '.truststore'              # JVM location of the trust store
+    truststorePass: 'trust'              # JVM resource alias containing the trust store password
     #crlFileList: ''
     #enableCRLDP: ''
     #kerberosConfigFile: ''

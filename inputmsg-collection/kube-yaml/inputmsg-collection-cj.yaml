@@ -1,0 +1,28 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: test-cj
+spec:
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+      name: test-cj
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - image: jasperlanda/eod20-inputmsg-collection
+            name: test-cj
+            resources: {}
+            volumeMounts:
+            - name: config
+              mountPath: "/config"
+          restartPolicy: OnFailure
+          volumes:
+          - name: config
+            secret:
+              secretName: mysecret
+  schedule: '* * * * *'
+status: {}

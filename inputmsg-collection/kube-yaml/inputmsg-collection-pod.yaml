@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: test-pod
+  name: test-pod
+spec:
+  containers:
+  - image: jasperlanda/eod20-inputmsg-collection
+    name: test-pod
+    resources: {}
+    volumeMounts:
+    - name: config
+      mountPath: "/config"
+  restartPolicy: OnFailure
+  volumes:
+  - name: config
+    secret:
+      secretName: test-secret
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}

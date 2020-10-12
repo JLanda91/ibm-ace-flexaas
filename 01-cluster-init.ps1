@@ -5,54 +5,12 @@ Param(
 	[string]$ResourceGroup = "apicpoc"
 )
 
-Function ReplaceInFiles($Files, $OldString, $NewString){
-	$FileItems = Get-Item $Files
-	$FileItems | ForEach {
-        Write-Host "Replacing $OldString with $NewString in $_"
-		$Content = Get-Content $_.FullName
-		$Content = $Content -creplace $OldString, $NewString
-		$Content | Set-Content -Path $_.FullName
-	}
-}
-
-Function CreateK8sResource($File, $NS){
-    Write-Host "Creating resources in $File ..."
-    kubectl create -f $File -n $NS
-    Write-Host ""
-}
-
-Function DeleteK8sResource($File, $NS){
-    Write-Host "Deleting resources in $File ..."
-    kubectl delete -f $File -n $NS
-    Write-Host ""
-}
-
-Function DeleteAllK8sResources($NS){
-     kubectl delete all -n $NS --all
-     Write-Host ""
-}
-
 Function ExitWithMessageIf($Condition, $Message){
     If($Condition){
         Write-Host $Message -fore Red
         Write-Host "Exiting..."
         Exit 1
     }
-}
-
-Function CreateHostNameForK8sLoadBalancerService($Service, $NS){
-	$ip = ''
-	While($ip -eq ''){
-		Start-Sleep -s 3
-		$ip = $(kubectl -n $NS get service $Service -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-	}
-	Write-Host "Creating hostname for K8s LoadBalancer service $Service in namespace $NS ($ip)..." -fore Green
-	$NLBDNSOutput = $(ibmcloud ks nlb-dns create classic --cluster $ClusterName --ip $ip)
-	Write-Host $NLBDNSOutput[1]
-	Write-Host ""
-	$Dummy = $NLBDNSOutput[1] -match "\S+$"
-	$HostName = $Matches[0]
-    Return $HostName
 }
 
 #Check if script is being ran as admin, exit otherwise
@@ -104,16 +62,3 @@ kubectl get storageclass
 
 Write-Host "Creating secret from dockerconfig json..." -fore Green
 kubectl create secret generic regcred --from-file=.dockerconfigjson=$HOME\.docker\config.json --type=kubernetes.io/dockerconfigjson
-
-Write-Host "Creating namespace ace" -fore Green
-kubectl create ns ace
-
-Write-Host "Creating ACE single pod deployment" -fore Green
-CreateK8sResource -File ace\ace-deploy.yaml -NS ace
-CreateK8sResource -File ace\ace-svc.yaml -NS ace
-$AceHost = CreateHostNameForK8sLoadBalancerService -Service ace-svc -NS ace
-Write-Host "ACE REST admin available at ${AceHost}:7600" -fore Green
-
-Set-Location "ace"
-python .\deploy_example_bar.py "${AceHost}:7600"
-Set-Location ".."
