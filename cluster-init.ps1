@@ -1,3 +1,10 @@
+Param(
+	[string]$ClusterName = "eod20",
+	[string]$ClusterUUID,
+	[string]$ClusterRegion = "eu-de",
+	[string]$ResourceGroup = "apicpoc"
+)
+
 Function ReplaceInFiles($Files, $OldString, $NewString){
 	$FileItems = Get-Item $Files
 	$FileItems | ForEach {
@@ -33,35 +40,19 @@ Function ExitWithMessageIf($Condition, $Message){
     }
 }
 
-Function TestAndDeleteDir($Dir){
-    If(Test-Path $Dir){
-        Remove-Item $Dir -recurse
-    }
-}
-
-Function GetLoadBalancerIP($Service, $NS){
-	$Result = ''
-	While($Result -eq ''){
-		Start-Sleep -s 5
-		$Result = $(kubectl -n $NS get service $Service -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+Function CreateHostNameForK8sLoadBalancerService($Service, $NS){
+	$ip = ''
+	While($ip -eq ''){
+		Start-Sleep -s 3
+		$ip = $(kubectl -n $NS get service $Service -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
 	}
-	# ExitWithMessageIf -Condition $($LoadBalancerIP -notmatch "\d+\.\d+\.\d+\.\d+") -Message "No Load Balancer IP for ingress service found"
-	Return $Result
-}
-
-
-
-$ClusterName = "eod20"
-$ClusterUUID = "btsseijf0u8vmqu2kqjg"
-$ClusterRegion = "eu-de"
-$ResourceGroup = "apicpoc"
-
-Function CreateHostName($ip){
-	Write-Host "Creating hostname for IP $ip..." -fore Green
+	Write-Host "Creating hostname for K8s LoadBalancer service $Service in namespace $NS ($ip)..." -fore Green
 	$NLBDNSOutput = $(ibmcloud ks nlb-dns create classic --cluster $ClusterName --ip $ip)
-	$NLBDNSOutput[1] -match "\S+$"
-    Write-Host "Hostname created: $Matches[0][1]" -fore Green
-	Return $Matches[0][1]
+	Write-Host $NLBDNSOutput[1]
+	Write-Host ""
+	$Dummy = $NLBDNSOutput[1] -match "\S+$"
+	$HostName = $Matches[0]
+    Return $HostName
 }
 
 #Check if script is being ran as admin, exit otherwise
@@ -86,7 +77,7 @@ kubectl config current-context
 
 Write-Host "Adding Helm repos" -fore Green
 helm repo add iks-charts https://icr.io/helm/iks-charts
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+#helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 
 Write-Host "Installing IBM Block Storage Helm chart..." -fore Green
@@ -95,19 +86,19 @@ helm install ibm-block-storage iks-charts/ibmcloud-block-storage-plugin -n kube-
 Write-Host "Verify if ibm-block/file storageclasses are created..." -fore Green
 kubectl get storageclass
 
-Write-Host "Installing nginx ingress Helm chart..." -fore Green
+#Write-Host "Installing nginx ingress Helm chart..." -fore Green
 #check even welke van de twee werkt
 #helm install ingress stable/nginx-ingress --values .\ingress-config.yaml --namespace kube-system
-helm install ingress ingress-nginx/ingress-nginx --values .\ingress-config.yaml -n kube-system
+#helm install ingress ingress-nginx/ingress-nginx --values .\ingress-config.yaml -n kube-system
 
-Write-Host "Waiting for LoadBalancer IP to become available..." -fore Green
-$IngressIP = GetLoadBalancerIP -Service ingress-ingress-nginx-controller -NS kube-system
+#Write-Host "Waiting for LoadBalancer IP to become available..." -fore Green
+#$IngressIP = GetLoadBalancerIP -Service ingress-ingress-nginx-controller -NS kube-system
 
-Write-Host "LoadBalancer IP found: $IngressIP" -fore Green
-Write-Host "Creating NLB DNS at this IP..." -fore Green
-$IngressHost = CreateHostName -ip $IngressIP
+#Write-Host "LoadBalancer IP found: $IngressIP" -fore Green
+#Write-Host "Creating NLB DNS at this IP..." -fore Green
+#$IngressHost = CreateHostName -ip $IngressIP
 
-Write-Host "Hostname created for ingress-nginx: $NLBHost" -fore Green
+#Write-Host "Hostname created for ingress-nginx: $NLBHost" -fore Green
 # Write-Host "Installing Certman..." -fore Green
 # kubectl create -f https://github.com/jetstack/cert-manager/releases/download/v0.12.0/cert-manager.yaml
 
@@ -120,5 +111,9 @@ kubectl create ns ace
 Write-Host "Creating ACE single pod deployment" -fore Green
 CreateK8sResource -File ace\ace-deploy.yaml -NS ace
 CreateK8sResource -File ace\ace-svc.yaml -NS ace
-$AceIP = GetLoadBalancerIP -Service ace-svc -NS ace
-$AceHost = CreateHostName -ip $AceIP
+$AceHost = CreateHostNameForK8sLoadBalancerService -Service ace-svc -NS ace
+Write-Host "ACE REST admin available at ${AceHost}:7600" -fore Green
+
+Set-Location "ace"
+python .\deploy_example_bar.py "${AceHost}:7600"
+Set-Location ".."
