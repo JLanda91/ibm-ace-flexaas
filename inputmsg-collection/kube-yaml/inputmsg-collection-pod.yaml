@@ -5,6 +5,7 @@ metadata:
   labels:
     run: test-pod
   name: test-pod
+  namespace: eod20
 spec:
   containers:
   - image: jasperlanda/eod20-inputmsg-collection
@@ -17,7 +18,7 @@ spec:
   volumes:
   - name: config
     secret:
-      secretName: test-secret
+      secretName: inputmsg-collection-secret
   dnsPolicy: ClusterFirst
-  restartPolicy: Always
+  restartPolicy: Never
 status: {}

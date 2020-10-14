@@ -1,7 +1,10 @@
 Param(
 	[string]$Service,
-	[string]$NS
+	[string]$NS,
+	[string]$ClusterName = "eod20"
 )
+
+$ErrorActionPreference = "Stop"
 
 $ip = ''
 While($ip -eq ''){
