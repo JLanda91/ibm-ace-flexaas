@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: inputmsg-api
+  name: inputmsg-api
+  namespace: eod20
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: inputmsg-api
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: inputmsg-api
+    spec:
+      containers:
+      - image: jasperlanda/eod20-inputmsg-api:latest
+        name: inputmsg-api
+        volumeMounts:
+        - name: user1
+          mountPath: "/users/user1"
+        - name: user2
+          mountPath: "/users/user2"
+      volumes:
+      - name: user1
+        secret:
+          secretName: inputmsg-api-user1-secret
+      - name: user2
+        secret:
+          secretName: inputmsg-api-user1-secret
+      imagePullSecrets:
+      - name: regcred
+status: {}

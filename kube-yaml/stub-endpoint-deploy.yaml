@@ -21,8 +21,6 @@ spec:
       containers:
       - image: jasperlanda/eod20-stub-endpoint:latest
         name: stub-endpoint
-        ports:
-        - containerPort: 5000
       imagePullSecrets:
       - name: regcred
 status: {}

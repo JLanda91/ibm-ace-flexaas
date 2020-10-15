@@ -7,52 +7,44 @@ class Record:
         self.__data = record
 
     @property
-    def _msgflow_data(self):
-        return self.__data["checkpoint"]["messageFlowData"]
-
-    @property
-    def _nodes(self):
-        return self._msgflow_data["nodes"]
-
-    @property
-    def _source(self):
-        return self._nodes["source"]
-
-    @property
-    def _target(self):
-        return self._nodes["target"]
+    def integration_server(self):
+        return self.__data["checkpoint"]["messageFlowData"]["integrationServer"]
 
     @property
     def application(self) -> str:
-        return self._msgflow_data["application"]
+        return self.__data["checkpoint"]["messageFlowData"]["application"]
 
     @property
     def message_flow(self) -> str:
-        return self._msgflow_data["messageFlow"]
+        return self.__data["checkpoint"]["messageFlowData"]["messageFlow"]
 
     @property
     def thread_id(self) -> int:
-        return self._msgflow_data["threadId"]
+        return self.__data["checkpoint"]["messageFlowData"]["threadId"]
 
     @property
     def source_node(self) -> str:
-        return self._source["name"]
+        return self.__data["checkpoint"]["messageFlowData"]["nodes"]["source"]["name"]
 
     @property
     def source_terminal(self) -> str:
-        return self._source["terminal"]
+        return self.__data["checkpoint"]["messageFlowData"]["nodes"]["source"]["terminal"]
 
     @property
     def target_node(self) -> str:
-        return self._target["name"]
+        return self.__data["checkpoint"]["messageFlowData"]["nodes"]["target"]["name"]
 
     @property
     def target_terminal(self) -> str:
-        return self._target["terminal"]
+        return self.__data["checkpoint"]["messageFlowData"]["nodes"]["target"]["terminal"]
 
     @property
-    def message_uuid(self) -> str:
+    def inputmessage_uuid(self) -> str:
         return self.__data["checkpoint"]["correlationData"]["inputMessageUUID"]
+
+    @property
+    def invocation_uuid(self) -> str:
+        return self.__data["checkpoint"]["correlationData"]["invocationUUID"]
 
     @property
     def flow_sequence_number(self) -> str:
@@ -60,17 +52,22 @@ class Record:
 
     @property
     def is_input_node(self) -> bool:
-        return self._source["inputNode"]
+        return self.__data["checkpoint"]["messageFlowData"]["nodes"]["source"]["inputNode"]
 
     @property
+    def is_first_message(self):
+        return self.inputmessage_uuid == self.invocation_uuid
+
+    @property
+    def timestamp(self):
+        return self.__data["checkpoint"]["sequenceData"]["timestamp"]
+
     def test_data(self):
         return self.__data["testData"]
 
-    @property
     def test_data_json(self):
         return json.dumps(self.test_data)
 
-    @property
     def test_data_xml(self):
         test_data = self.test_data
         byte_result = bytearray(b'')
