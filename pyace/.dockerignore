@@ -2,3 +2,4 @@
 build
 dist
 pyace.egg-info
+pyace/__pycache__

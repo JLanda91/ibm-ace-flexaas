@@ -10,22 +10,21 @@ app = Flask(__name__)
 auth = HTTPBasicAuth()
 
 users_dir = os.path.join(os.path.abspath(os.sep), "users")
-data_dir = os.path.join(os.path.abspath(os.sep), "inputmsg-api")
+data_dir = os.path.join(os.path.abspath(os.sep), "data")
 
-users = dict()
-for users in filter(lambda x: os.path.isdir(x), os.listdir(users_dir)):
-    user_dir = os.path.join(users_dir, dir)
-    user = open(os.path.join(user_dir), "user").readlines()[0]
-    pw = open(os.path.join(user_dir), "pw").readlines()[0]
-    users[user] = generate_password_hash(pw)
-    print(user, pw)
+user_auth = dict()
+for users in os.listdir(users_dir):
+    user_dir = os.path.join(users_dir, users)
+    user = open(os.path.join(user_dir, "user"), "r").readlines()[0]
+    pw = open(os.path.join(user_dir, "pw"), "r").readlines()[0]
+    user_auth[user] = generate_password_hash(pw)
 
 root_trees = ('message', 'localEnvironment', 'environment', 'exceptionList')
 
 
 @auth.verify_password
 def verify_password(username, password):
-    if username in users and check_password_hash(users.get(username), password):
+    if username in user_auth and check_password_hash(user_auth.get(username), password):
         return username
 
 

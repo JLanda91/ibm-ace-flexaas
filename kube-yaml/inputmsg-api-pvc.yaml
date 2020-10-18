@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: file-gold-pvc
+ labels:
+   app: inputmsg-api
+spec:
+ accessModes:
+   - ReadWriteMany
+ resources:
+   requests:
+     storage: 10Gi
+ storageClassName: ibmc-file-retain-gold

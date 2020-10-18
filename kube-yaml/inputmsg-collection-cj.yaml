@@ -18,12 +18,17 @@ spec:
             name: inputmsg-collection
             resources: {}
             volumeMounts:
-            - name: config
-              mountPath: "/config"
+            - name: ace-config
+              mountPath: "/ace-config"
+            - name: api-user
+              mountPath: "/api-user"
           restartPolicy: Never
           volumes:
-          - name: config
+          - name: ace-config
             secret:
               secretName: inputmsg-collection-secret
+          - name: api-user
+            secret:
+              secretName: inputmsg-api-user1-secret
   schedule: '*/10 * * * *'
 status: {}

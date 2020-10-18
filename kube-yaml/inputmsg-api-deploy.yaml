@@ -7,7 +7,7 @@ metadata:
   name: inputmsg-api
   namespace: eod20
 spec:
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: inputmsg-api
@@ -26,13 +26,18 @@ spec:
           mountPath: "/users/user1"
         - name: user2
           mountPath: "/users/user2"
+        - name: data
+          mountPath: "/data"
       volumes:
       - name: user1
         secret:
           secretName: inputmsg-api-user1-secret
       - name: user2
         secret:
-          secretName: inputmsg-api-user1-secret
+          secretName: inputmsg-api-user2-secret
+      - name: data
+        persistentVolumeClaim:
+          claimName: file-gold-pvc
       imagePullSecrets:
       - name: regcred
 status: {}
