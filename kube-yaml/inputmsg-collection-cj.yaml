@@ -20,15 +20,15 @@ spec:
             volumeMounts:
             - name: ace-config
               mountPath: "/ace-config"
-            - name: api-user
+            - name: api-users
               mountPath: "/api-user"
           restartPolicy: Never
           volumes:
           - name: ace-config
+            configMap:
+              name: inputmsg-collection-cm
+          - name: api-users
             secret:
-              secretName: inputmsg-collection-secret
-          - name: api-user
-            secret:
-              secretName: inputmsg-api-user1-secret
-  schedule: '*/10 * * * *'
+              secretName: inputmsg-api-users-secret
+  schedule: '*/5 * * * *'
 status: {}

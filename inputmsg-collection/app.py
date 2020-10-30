@@ -52,7 +52,7 @@ else:
 
     # upload the input messages to the inputmsg-api
     print("Uploading records to inputmsg-api...")
-    upload_response = requests.posts(f"inputmsg-api-svc.eod20:8080/inputmsg",
+    upload_response = requests.posts(f"inputmsg-api-svc.eod20:8080/",
                                      auth=upload_auth,
                                      data=json.dumps(input_messages),
                                      verify=False,

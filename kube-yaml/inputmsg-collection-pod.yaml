@@ -19,10 +19,10 @@ spec:
   volumes:
   - name: ace-config
     secret:
-      secretName: inputmsg-collection-secret
+      secretName: inputmsg-collection-cm
   - name: api-user
     secret:
-      secretName: inputmsg-api-user1-secret
+      secretName: inputmsg-api-users-secret
   dnsPolicy: ClusterFirst
   restartPolicy: Never
 status: {}

@@ -13,19 +13,13 @@ users_dir = os.path.join(os.path.abspath(os.sep), "users")
 data_dir = os.path.join(os.path.abspath(os.sep), "data")
 
 user_auth = dict()
-for users in os.listdir(users_dir):
-    user_dir = os.path.join(users_dir, users)
-    user = open(os.path.join(user_dir, "user"), "r").readlines()[0]
-    pw = open(os.path.join(user_dir, "pw"), "r").readlines()[0]
+for user in filter(lambda x: x[:2] != "..", os.listdir(users_dir)):
+    pw = open(os.path.join(users_dir, user), "r").readlines()[0]
     user_auth[user] = generate_password_hash(pw)
 
+print(user_auth)
+
 root_trees = ('message', 'localEnvironment', 'environment', 'exceptionList')
-
-
-@auth.verify_password
-def verify_password(username, password):
-    if username in user_auth and check_password_hash(user_auth.get(username), password):
-        return username
 
 
 def timestamp_to_file(ts):
@@ -104,7 +98,13 @@ def get_messages(req):
     return payload, 200
 
 
-@app.route('/inputmsg', methods=['GET', 'POST'])
+@auth.verify_password
+def verify_password(username, password):
+    if username in user_auth and check_password_hash(user_auth.get(username), password):
+        return username
+
+
+@app.route('/', methods=['GET', 'POST'])
 @auth.login_required
 def inputmsg():
     if request.method == 'POST':

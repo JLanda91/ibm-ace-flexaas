@@ -22,19 +22,14 @@ spec:
       - image: jasperlanda/eod20-inputmsg-api:latest
         name: inputmsg-api
         volumeMounts:
-        - name: user1
-          mountPath: "/users/user1"
-        - name: user2
-          mountPath: "/users/user2"
+        - name: users
+          mountPath: "/users"
         - name: data
           mountPath: "/data"
       volumes:
-      - name: user1
+      - name: users
         secret:
-          secretName: inputmsg-api-user1-secret
-      - name: user2
-        secret:
-          secretName: inputmsg-api-user2-secret
+          secretName: inputmsg-api-users-secret
       - name: data
         persistentVolumeClaim:
           claimName: file-gold-pvc

@@ -1,0 +1,12 @@
+apiVersion: v1
+data:
+  host: ace-acp-svc.ace
+  https: "false"
+  port: "80"
+  pw: admin1
+  user: admin1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: inputmsg-collection-cm
+  namespace: eod20

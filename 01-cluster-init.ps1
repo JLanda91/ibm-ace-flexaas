@@ -1,6 +1,5 @@
 Param(
 	[string]$ClusterName = "eod20",
-	[string]$ClusterUUID,
 	[string]$ClusterRegion = "eu-de",
 	[string]$ResourceGroup = "apicpoc"
 )
@@ -30,7 +29,7 @@ Write-Host "Logging into IBM Cloud..." -fore $Color
 ibmcloud login -a cloud.ibm.com -r $ClusterRegion -g $ResourceGroup
 
 Write-Host "Setting the Kubernetes context to the IKS instance..." -fore $Color
-ibmcloud ks cluster config --cluster $ClusterUUID
+ibmcloud ks cluster config --cluster $ClusterName
 
 Write-Host "Getting the current Kubernetes context..." -fore $Color
 kubectl config current-context
@@ -53,3 +52,8 @@ kubectl config current-context
 
 Write-Host "Creating secret from dockerconfig json..." -fore $Color
 kubectl create secret generic regcred --from-file=.dockerconfigjson=$HOME\.docker\config.json --type=kubernetes.io/dockerconfigjson
+
+Write-Host "Getting cluster ALB hostname and replace in ingress rules..." -fore $Color
+$ClusterHostName = .\util-ps\get-cluster-hostname -ClusterName "$ClusterName"
+.\util-ps\replace-in-files -Files ".\kube-yaml\*-ingress.yaml" -OldString "$\S+-\d{4}" -NewString "$ClusterHostName"
+

@@ -1,7 +1,8 @@
 Param(
 	[string]$Service,
 	[string]$NS,
-	[string]$ClusterName = "eod20"
+	[string]$ClusterName = "eod20",
+	[string]$Port
 )
 
 $ErrorActionPreference = "Stop"
@@ -18,4 +19,5 @@ Write-Host $NLBDNSOutput[1] -fore $Color
 Write-Host ""
 $Dummy = $NLBDNSOutput[1] -match "\S+$"
 $HostName = $Matches[0]
+Write-Host "${Service}.${NS} externally available at ${HostName}:${Port}" -fore $Color
 Return $HostName
