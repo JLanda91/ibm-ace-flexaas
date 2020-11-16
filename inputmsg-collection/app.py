@@ -1,5 +1,5 @@
-from pyace.aceconnection import ACEConnection
-from pyace.record import Record
+from pyace.ace import ACEConnection
+from pyace.ace import ACERecord
 import os
 import json
 import requests
@@ -14,9 +14,8 @@ for file in ("host", "port", "https", "user", "pw"):
     ace_config[file] = value
     f.close()
 
-api_user = dict()
-user = open(os.path.join(api_user_dir, "user"), "r").readlines()[0]
-pw = open(os.path.join(api_user_dir, "pw"), "r").readlines()[0]
+user = list(filter(lambda x: x[:2] != "..", os.listdir(api_user_dir)))[0]
+pw = open(os.path.join(api_user_dir, user), "r").readlines()[0]
 
 ace_auth = requests.auth.HTTPBasicAuth(ace_config["user"], ace_config["pw"])
 upload_auth = requests.auth.HTTPBasicAuth(user, pw)
@@ -43,7 +42,7 @@ input_messages = ace_conn.get(uri="/apiv2/data/recorded-test-data",
                               parse_json=True,
                               auth=ace_auth,
                               params=None,
-                              func=lambda x: list(Record(y).test_data() for y in x.get("recordedTestData", list())))
+                              func=lambda x: list(ACERecord(y).test_data() for y in x.get("recordedTestData", list())))
 
 if len(input_messages) == 0:
     print("No records available...")

@@ -3,49 +3,47 @@ from flask_httpauth import HTTPBasicAuth
 import os
 import json
 import re
-from werkzeug.security import generate_password_hash, check_password_hash
-from pyace.record import Record
+from werkzeug.security import check_password_hash
+from pyace.ace import ACERecord
+from pyace.kube import subdirs_file_content_to_dict, hash_dict_values
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
-users_dir = os.path.join(os.path.abspath(os.sep), "users")
-data_dir = os.path.join(os.path.abspath(os.sep), "data")
+mount_path = os.path.abspath(os.sep)
+user_dir = os.path.join(mount_path, "users")
+data_dir = os.path.join(mount_path, "data")
 
-user_auth = dict()
-for user in filter(lambda x: x[:2] != "..", os.listdir(users_dir)):
-    pw = open(os.path.join(users_dir, user), "r").readlines()[0]
-    user_auth[user] = generate_password_hash(pw)
-
-print(user_auth)
-
+user_auth = subdirs_file_content_to_dict(user_dir, split_by_line=False)
+hash_dict_values(user_auth)
 root_trees = ('message', 'localEnvironment', 'environment', 'exceptionList')
 
 
 def timestamp_to_file(ts):
-    return ts.replace(" ", "T").replace(":", "_")
+    return re.sub('[T\W]+', '', ts)
 
 
-def file_to_timestamp(ts):
-    return ts.replace("_", ":")
+def file_to_timestamp(f):
+    return f"{f[:4]}-{f[4:6]}-{f[6:8]}T{f[8:10]}:{f[10:12]}:{f[12:14]}.{f[14:]}"
 
 
 def save_inputmsg(record):
     print("Saving input message:")
     print("=====================")
     save_dir = os.path.join(data_dir, record.integration_server, record.application, record.message_flow,
-                            record.source_node)
-    filename = timestamp_to_file(record.timestamp)
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
-    with open(os.path.join(save_dir, filename), 'w') as f:
-        f.write("\n".join(record.test_data().values()) + "\n")
-        for key, value in record.test_data().items():
-            print(f"{key}: {value}")
+                            record.source_node, timestamp_to_file(record.timestamp))
+    for root_tree in root_trees:
+        root_tree_path = os.path.join(save_dir)
+        if not os.path.exists(root_tree_path):
+            os.makedirs(root_tree_path)
+        with open(os.path.join(root_tree_path, root_tree), 'w') as f:
+            f.write(record.test_data().get(root_tree, ''))
+    for key, value in record.test_data().items():
+        print(f"{key}: {value}")
 
 
 def post_messages(req):
-    all_records = tuple(Record(elem) for elem in json.loads(request.data))
+    all_records = tuple(ACERecord(elem) for elem in json.loads(request.data))
     inputmsgs = tuple(filter(lambda x: x.is_first_message, all_records))
     for record in inputmsgs:
         print(f"Integration Server: {record.integration_server}")
@@ -62,39 +60,24 @@ def post_messages(req):
 
 
 def get_messages(req):
-    integration_server = req.args.get('integration_server', '.+')
-    project = req.args.get('project', '.+')
-    message_flow = req.args.get('message_flow', '.+')
-    input_node = req.args.get('input_node', '.+')
-    ts_from = req.args.get('from', '')
-    ts_to = req.args.get('to', '9')
-    print(ts_from)
-    print(ts_to)
+    integration_server = req.args.get('integration_server', '')
+    project = req.args.get('project', '')
+    message_flow = req.args.get('message_flow', '')
+    input_node = req.args.get('input_node', '')
+    ts_from = timestamp_to_file(req.args.get('from', ''))
+    ts_to = timestamp_to_file(req.args.get('to', '9'))
 
-    specs = (integration_server, project, message_flow, input_node)
-    level_lambdas = tuple(lambda x: re.match(y, x) for y in specs)
+    specs = [integration_server, project, message_flow, input_node]
+    path_filter_string = ''
+    for spec in specs:
+        if spec == '':
+            break
+        path_filter_string += (spec + os.path.sep)
 
-    def file_in_range(x):
-        return ts_from <= file_to_timestamp(x) < ts_to
+    def path_filter(x):
+        return x.startswith(path_filter_string) and ts_from <= x.split(os.path.sep)[-1] < ts_to
 
-    payload = dict()
-    for int_s in filter(level_lambdas[0], os.listdir(data_dir)):
-        int_s_dir = os.path.join(data_dir, int_s)
-        payload[int_s] = dict()
-        for proj in filter(level_lambdas[1], os.listdir(int_s_dir)):
-            proj_dir = os.path.join(int_s_dir, proj)
-            payload[int_s][proj] = dict()
-            for flow in filter(level_lambdas[2], os.listdir(proj_dir)):
-                flow_dir = os.path.join(proj_dir, flow)
-                payload[int_s][proj][flow] = dict()
-                for node in filter(level_lambdas[3], os.listdir(flow_dir)):
-                    node_dir = os.path.join(flow_dir, node)
-                    payload[int_s][proj][flow][node] = dict()
-                    for file in filter(file_in_range, os.listdir(node_dir)):
-                        f = open(os.path.join(node_dir, file))
-                        payload[int_s][proj][flow][node][file_to_timestamp(file)] = dict(
-                            (root_tree, line.strip()) for root_tree, line in zip(root_trees, f.readlines()))
-                        f.close()
+    payload = subdirs_file_content_to_dict(data_dir, split_by_line=False, subdict_by_path=True, path_filter=path_filter)
     return payload, 200
 
 

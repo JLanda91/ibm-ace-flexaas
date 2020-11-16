@@ -1,7 +1,7 @@
 /workspace
-/pyace/dist
-/pyace/build
-/pyace/.idea
-/pyace/pyace.egg-info
-/pyace/pyace/__pycache__
-/inputmsg-api/data
+**/Local
+**/dist
+**/build
+**/.idea
+**/*.egg-info
+**/__pycache__

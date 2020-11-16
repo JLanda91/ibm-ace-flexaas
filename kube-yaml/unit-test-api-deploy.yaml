@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: unit-test-api
+  name: unit-test-api
+  namespace: eod20
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: unit-test-api
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: unit-test-api
+    spec:
+      containers:
+      - image: jasperlanda/eod20-unit-test-api:latest
+        name: unit-test-api
+        volumeMounts:
+        - name: users
+          mountPath: "/users"
+        - name: ace-config
+          mountPath: "/ace-config"
+        - name: data
+          mountPath: "/data"
+      volumes:
+      - name: users
+        secret:
+          secretName: unit-test-api-users-secret
+      - name: ace-config
+        secret:
+          secretName: ace-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: unit-test-api-pvc
+      imagePullSecrets:
+      - name: regcred
+status: {}

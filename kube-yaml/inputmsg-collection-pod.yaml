@@ -19,7 +19,7 @@ spec:
   volumes:
   - name: ace-config
     secret:
-      secretName: inputmsg-collection-cm
+      secretName: ace-config
   - name: api-user
     secret:
       secretName: inputmsg-api-users-secret

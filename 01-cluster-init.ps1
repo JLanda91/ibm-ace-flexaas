@@ -34,26 +34,12 @@ ibmcloud ks cluster config --cluster $ClusterName
 Write-Host "Getting the current Kubernetes context..." -fore $Color
 kubectl config current-context
 
-#Write-Host "Installing nginx ingress Helm chart..." -fore $Color
-#check even welke van de twee werkt
-#helm install ingress stable/nginx-ingress --values .\ingress-config.yaml --namespace kube-system
-#helm install ingress ingress-nginx/ingress-nginx --values .\ingress-config.yaml -n kube-system
-
-#Write-Host "Waiting for LoadBalancer IP to become available..." -fore $Color
-#$IngressIP = GetLoadBalancerIP -Service ingress-ingress-nginx-controller -NS kube-system
-
-#Write-Host "LoadBalancer IP found: $IngressIP" -fore $Color
-#Write-Host "Creating NLB DNS at this IP..." -fore $Color
-#$IngressHost = CreateHostName -ip $IngressIP
-
-#Write-Host "Hostname created for ingress-nginx: $NLBHost" -fore $Color
-# Write-Host "Installing Certman..." -fore $Color
-# kubectl create -f https://github.com/jetstack/cert-manager/releases/download/v0.12.0/cert-manager.yaml
-
 Write-Host "Creating secret from dockerconfig json..." -fore $Color
 kubectl create secret generic regcred --from-file=.dockerconfigjson=$HOME\.docker\config.json --type=kubernetes.io/dockerconfigjson
 
 Write-Host "Getting cluster ALB hostname and replace in ingress rules..." -fore $Color
 $ClusterHostName = .\util-ps\get-cluster-hostname -ClusterName "$ClusterName"
-.\util-ps\replace-in-files -Files ".\kube-yaml\*-ingress.yaml" -OldString "$\S+-\d{4}" -NewString "$ClusterHostName"
 
+If ($ClusterHostName -ne ""){
+	.\util-ps\replace-in-files -Files ".\kube-yaml\*-ingress.yaml" -OldString "$\S+-\d{4}" -NewString "$ClusterHostName"
+}

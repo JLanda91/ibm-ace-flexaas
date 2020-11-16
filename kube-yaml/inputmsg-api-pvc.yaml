@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
- name: file-gold-pvc
+ name: inputmsg-api-pvc
  labels:
    app: inputmsg-api
 spec:

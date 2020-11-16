@@ -25,8 +25,8 @@ spec:
           restartPolicy: Never
           volumes:
           - name: ace-config
-            configMap:
-              name: inputmsg-collection-cm
+            secret:
+              secretName: ace-config
           - name: api-users
             secret:
               secretName: inputmsg-api-users-secret

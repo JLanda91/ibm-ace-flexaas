@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
  name: ace-accp-ingress
@@ -18,13 +18,17 @@ spec:
      - path: /
        pathType: Prefix
        backend:
-         serviceName: ace-accp-svc
-         servicePort: 7600
+         service:
+           name: ace-accp-svc
+           port:
+             number: 7600
  - host: ace-accp-services.eod20-618dd4f5cf576582d05dea2fdbda72d6-0000.eu-de.containers.appdomain.cloud
    http:
      paths:
      - path: /
        pathType: Prefix
        backend:
-         serviceName: ace-accp-svc
-         servicePort: 7800
+         service:
+           name: ace-accp-svc
+           port:
+             number: 7800

@@ -2,11 +2,8 @@ $ErrorActionPreference = "Stop"
 $NS = "eod20"
 $Color = "Green"
 
-Write-Host "Creating configmap yaml for ace host params for input message collection" -fore $Color
-kubectl create cm -n $NS inputmsg-collection-cm --from-env-file=.\inputmsg-collection\ace-host.env --dry-run=client -o yaml | Set-Content -Path .\kube-yaml\inputmsg-collection-cm.yaml
-
-Write-Host "Creating inputmsg-collection configmap" -fore $Color
-.\util-ps\create-k8s-resource.ps1 -File ".\kube-yaml\inputmsg-collection-cm.yaml" -NS "$NS"
+Write-Host "Creating secret for ace host params for input message collection" -fore $Color
+.\util-ps\create-ace-config.ps1 -NS "$NS" -SecretName "ace-config"
 
 Write-Host "Starting input message collection cronjob" -fore $Color
-.\util-ps\create-k8s-resource.ps1 -File ".\kube-yaml\inputmsg-collection-cj.yaml" -NS "$NS"
+.\util-ps\apply-k8s-resource.ps1 -File ".\kube-yaml\inputmsg-collection-cj.yaml" -NS "$NS"

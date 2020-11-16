@@ -1,4 +1,4 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
  name: stub-endpoint-ingress
@@ -17,5 +17,7 @@ spec:
      - path: /
        pathType: Prefix
        backend:
-         serviceName: stub-endpoint-svc
-         servicePort: 8080
+         service:
+           name: stub-endpoint-svc
+           port:
+             number: 8080

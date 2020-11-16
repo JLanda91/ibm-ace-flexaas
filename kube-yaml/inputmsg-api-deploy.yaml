@@ -7,7 +7,7 @@ metadata:
   name: inputmsg-api
   namespace: eod20
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: inputmsg-api
@@ -32,7 +32,7 @@ spec:
           secretName: inputmsg-api-users-secret
       - name: data
         persistentVolumeClaim:
-          claimName: file-gold-pvc
+          claimName: inputmsg-api-pvc
       imagePullSecrets:
       - name: regcred
 status: {}
