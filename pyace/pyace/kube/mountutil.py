@@ -33,3 +33,8 @@ def subdirs_file_content_to_dict(root_dir, split_by_line: bool = True, subdict_b
 def hash_dict_values(input_dict):
     input_dict.update(dict((x, generate_password_hash(y)) for x, y in input_dict.items()))
 
+
+def create_dir_if_not_exists(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+

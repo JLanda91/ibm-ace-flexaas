@@ -5,7 +5,7 @@ import json
 import re
 from werkzeug.security import check_password_hash
 from pyace.ace import ACERecord
-from pyace.kube import subdirs_file_content_to_dict, hash_dict_values
+from pyace.kube import subdirs_file_content_to_dict, hash_dict_values, create_dir_if_not_exists
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
@@ -34,8 +34,7 @@ def save_inputmsg(record):
                             record.source_node, timestamp_to_file(record.timestamp))
     for root_tree in root_trees:
         root_tree_path = os.path.join(save_dir)
-        if not os.path.exists(root_tree_path):
-            os.makedirs(root_tree_path)
+        create_dir_if_not_exists(root_tree_path)
         with open(os.path.join(root_tree_path, root_tree), 'w') as f:
             f.write(record.test_data().get(root_tree, ''))
     for key, value in record.test_data().items():

@@ -28,13 +28,15 @@ class ACEConnection:
     def https_url(self):
         return f"https://{self.__host}:{self.__https_port}"
 
-    def get(self, uri, expected_rc, parse_json, auth=None, params=None, func=lambda x: x):
+    def __make_request(self, uri, operation, data, expected_rc, parse_json, auth=None, params=None,
+                       func=lambda x: x):
         if params is None:
             params = dict()
-        response = requests.get(f"{self.admin_url}{uri}",
-                                auth=auth,
-                                params=params,
-                                verify=False)
+        response = operation(f"{self.admin_url}{uri}",
+                             data=data,
+                             auth=auth,
+                             params=params,
+                             verify=False)
         arc = response.status_code
         content = response.content.decode("utf-8")
         if parse_json:
@@ -44,85 +46,20 @@ class ACEConnection:
             return f_content
         else:
             print(f"Error")
-            print(f"GET {self.admin_url}{uri} returned code {arc}, expected {expected_rc}")
+            print(f"{operation} {self.admin_url}{uri} returned code {arc}, expected {expected_rc}")
             print(content)
+
+    def get(self, uri, expected_rc, parse_json, auth=None, params=None, func=lambda x: x):
+        return self.__make_request(uri, requests.get, None, expected_rc, parse_json, auth, params, func)
 
     def post(self, uri, data, expected_rc, parse_json, auth=None, params=None, func=lambda x: x):
-        if params is None:
-            params = dict()
-        response = requests.get(f"{self.admin_url}{uri}",
-                                data=data,
-                                auth=auth,
-                                params=params,
-                                verify=False)
-        arc = response.status_code
-        content = response.content.decode("utf-8")
-        if parse_json:
-            content = json.loads(content)
-        f_content = func(content)
-        if arc == expected_rc:
-            return f_content
-        else:
-            print(f"Error")
-            print(f"POST {self.admin_url}{uri} returned code {arc}, expected {expected_rc}")
-            print(content)
+        return self.__make_request(uri, requests.post, data, expected_rc, parse_json, auth, params, func)
 
     def put(self, uri, data, expected_rc, parse_json, auth=None, params=None, func=lambda x: x):
-        if params is None:
-            params = dict()
-        response = requests.put(f"{self.admin_url}{uri}",
-                                data=data,
-                                auth=auth,
-                                params=params,
-                                verify=False)
-        arc = response.status_code
-        content = response.content.decode("utf-8")
-        if parse_json:
-            content = json.loads(content)
-        f_content = func(content)
-        if arc == expected_rc:
-            return f_content
-        else:
-            print(f"Error")
-            print(f"POST {self.admin_url}{uri} returned code {arc}, expected {expected_rc}")
-            print(content)
+        return self.__make_request(uri, requests.put, data, expected_rc, parse_json, auth, params, func)
 
     def patch(self, uri, data, expected_rc, parse_json, auth=None, params=None, func=lambda x: x):
-        if params is None:
-            params = dict()
-        response = requests.patch(f"{self.admin_url}{uri}",
-                                  data=data,
-                                  auth=auth,
-                                  params=params,
-                                  verify=False)
-        arc = response.status_code
-        content = response.content.decode("utf-8")
-        if parse_json:
-            content = json.loads(content)
-        f_content = func(content)
-        if arc == expected_rc:
-            return f_content
-        else:
-            print(f"Error")
-            print(f"POST {self.admin_url}{uri} returned code {arc}, expected {expected_rc}")
-            print(content)
+        return self.__make_request(uri, requests.patch, data, expected_rc, parse_json, auth, params, func)
 
     def delete(self, uri, data, expected_rc, parse_json, auth=None, params=None, func=lambda x: x):
-        if params is None:
-            params = dict()
-        response = requests.delete(f"{self.admin_url}{uri}",
-                                   data=data,
-                                   auth=auth,
-                                   params=params,
-                                   verify=False)
-        arc = response.status_code
-        content = response.content.decode("utf-8")
-        if parse_json:
-            content = json.loads(content)
-        f_content = func(content)
-        if arc == expected_rc:
-            return f_content
-        else:
-            print(f"Error")
-            print(f"POST {self.admin_url}{uri} returned code {arc}, expected {expected_rc}")
-            print(content)
+        return self.__make_request(uri, requests.delete, data, expected_rc, parse_json, auth, params, func)
