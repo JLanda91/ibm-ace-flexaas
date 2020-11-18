@@ -34,7 +34,7 @@ spec:
           secretName: unit-test-api-users-secret
       - name: ace-config
         secret:
-          secretName: ace-config
+          secretName: ace-test-config
       - name: data
         persistentVolumeClaim:
           claimName: unit-test-api-pvc

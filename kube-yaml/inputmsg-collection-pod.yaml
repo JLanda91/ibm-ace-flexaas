@@ -19,7 +19,7 @@ spec:
   volumes:
   - name: ace-config
     secret:
-      secretName: ace-config
+      secretName: ace-accp-config
   - name: api-user
     secret:
       secretName: inputmsg-api-users-secret
