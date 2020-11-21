@@ -3,7 +3,7 @@ import sys
 import os
 
 
-bar_file = "SCHMachtigingGegevensFZBOQRYV1.bar"
+bar_file = "FICO27_B2BInvoice_Demo.bar"
 f = open(bar_file, "rb")
 binary = f.read()
 f.close()

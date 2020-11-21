@@ -20,4 +20,4 @@ spec:
          service:
            name: unit-test-api-svc
            port:
-             number: 8080
+             number: 8082

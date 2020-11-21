@@ -20,4 +20,4 @@ spec:
          service:
            name: stub-endpoint-svc
            port:
-             number: 8080
+             number: 8081

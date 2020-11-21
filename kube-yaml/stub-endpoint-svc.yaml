@@ -7,10 +7,10 @@ metadata:
     app: stub
 spec:
   ports:
-  - port: 8080
+  - port: 8081
     protocol: TCP
-    targetPort: 8080
-    name: "8080"
+    targetPort: 8081
+    name: "8081"
   selector:
     app: stub
   sessionAffinity: None

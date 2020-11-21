@@ -21,6 +21,9 @@ spec:
       containers:
       - image: jasperlanda/eod20-unit-test-api:latest
         name: unit-test-api
+        env:
+        - name: EOD20_UNITTESTAPI_MOUNT_PATH
+          value: "/"
         volumeMounts:
         - name: users
           mountPath: "/users"

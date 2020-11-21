@@ -11,6 +11,9 @@ spec:
   - image: jasperlanda/eod20-inputmsg-collection
     name: test-pod
     resources: {}
+    env:
+    - name: EOD20_INPUTMSGCOLL_MOUNT_PATH
+      value: "/"
     volumeMounts:
     - name: ace-config
       mountPath: "/ace-config"

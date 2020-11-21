@@ -7,10 +7,10 @@ metadata:
     app: unit-test-api
 spec:
   ports:
-  - port: 8080
+  - port: 8082
     protocol: TCP
-    targetPort: 8080
-    name: "8080"
+    targetPort: 8082
+    name: "8082"
   selector:
     app: unit-test-api
   sessionAffinity: None

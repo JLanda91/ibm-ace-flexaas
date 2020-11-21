@@ -10,7 +10,7 @@ from pyace.kube import subdirs_file_content_to_dict, hash_dict_values, create_di
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
-mount_path = os.path.abspath(os.sep)
+mount_path = os.environ.get('EOD20_INPUTMSGAPI_MOUNT_PATH')
 user_dir = os.path.join(mount_path, "users")
 data_dir = os.path.join(mount_path, "data")
 
@@ -20,7 +20,7 @@ root_trees = ('message', 'localEnvironment', 'environment', 'exceptionList')
 
 
 def timestamp_to_file(ts):
-    return re.sub('[T\W]+', '', ts)
+    return re.sub(r'[T\W]+', '', ts)
 
 
 def file_to_timestamp(f):
@@ -42,7 +42,7 @@ def save_inputmsg(record):
 
 
 def post_messages(req):
-    all_records = tuple(ACERecord(elem) for elem in json.loads(request.data))
+    all_records = tuple(ACERecord(elem) for elem in json.loads(req.data))
     inputmsgs = tuple(filter(lambda x: x.is_first_message, all_records))
     for record in inputmsgs:
         print(f"Integration Server: {record.integration_server}")
@@ -76,7 +76,8 @@ def get_messages(req):
     def path_filter(x):
         return x.startswith(path_filter_string) and ts_from <= x.split(os.path.sep)[-1] < ts_to
 
-    payload = subdirs_file_content_to_dict(data_dir, split_by_line=False, subdict_by_path=True, path_filter=path_filter)
+    payload["testData"] = subdirs_file_content_to_dict(data_dir, split_by_line=False, subdict_by_path=True,
+                                                       path_filter=path_filter)
     return payload, 200
 
 

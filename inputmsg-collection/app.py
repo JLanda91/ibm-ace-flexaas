@@ -4,8 +4,9 @@ import os
 import json
 import requests
 
-ace_config_dir = os.path.join(os.path.abspath(os.sep), "ace-config")
-api_user_dir = os.path.join(os.path.abspath(os.sep), "api-user")
+mount_path = os.environ.get('EOD20_INPUTMSGCOLL_MOUNT_PATH')
+ace_config_dir = os.path.join(mount_path, "ace-config")
+api_user_dir = os.path.join(mount_path, "api-user")
 
 ace_config = dict()
 for file in ("host", "port", "https", "user", "pw"):
@@ -56,7 +57,7 @@ else:
 
     if upload_response.status_code == 201:
         print("Successful! Deleting the test date from the ACE server...")
-        input_messages = ace_conn.delete_recorded_test_data()
+        ace_conn.delete_recorded_test_data()
         if delete_response.status_code == 201:
             print("Successful!")
         else:

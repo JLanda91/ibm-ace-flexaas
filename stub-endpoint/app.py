@@ -15,7 +15,7 @@ def register():
         return f"Please use query parameter id (string) to give your mock response a name", 400
 
 
-@app.route('/response', methods=['POST'])
+@app.route('/response', methods=['POST', 'GET', 'PATCH', 'PUT', 'DELETE'])
 def response():
     global memory
     stub_id = request.args.get('id')
@@ -27,9 +27,10 @@ def response():
         return f"Stub {stub_id} does not have an associated response", 404
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['DELETE'])
 def index():
-    return "Hi!", 200
+    memory.clear()
+    return "Stubs cleaned", 200
 
 
-app.run(host='0.0.0.0', port=8080, debug=True)
+app.run(host='0.0.0.0', port=8081, debug=True)

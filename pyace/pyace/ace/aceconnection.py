@@ -1,6 +1,5 @@
 import requests
 import json
-from .acerecord import ACERecord
 
 
 class ACEConnectionError(Exception):
@@ -40,14 +39,16 @@ class ACEConnection:
     def https_url(self):
         return f"https://{self.__host}:{self.__https_port}"
 
-    def __make_request(self, uri, operation, data, expected_rc, parse_json, params=None,
+    def __make_request(self, uri, operation, data, expected_rc, parse_json, headers=None, params=None,
                        func=lambda x: x):
         if params is None:
             params = dict()
-        response = operation(f"{self.admin_url}{uri}",
+        url = f"{self.admin_url}{uri}"
+        response = operation(url=url,
                              data=data,
-                             auth=self.__auth,
+                             headers=headers,
                              params=params,
+                             auth=self.__auth,
                              verify=self.__request_verify)
         arc = response.status_code
         content = response.content.decode("utf-8")
@@ -57,51 +58,49 @@ class ACEConnection:
         if arc == expected_rc:
             return f_content
         else:
-            raise ACEConnectionError(f"{operation} {self.admin_url}{uri} returned code {arc}, expected {expected_rc}. "
-                                     f"Response: {content}")
+            raise ACEConnectionError(content)
 
-    @staticmethod
-    def __record_parse(parse_ace_records):
-        return ACERecord if parse_ace_records else lambda x: x
+    def get(self, uri, expected_rc, parse_json, headers=None, params=None, func=lambda x: x):
+        return self.__make_request(uri, requests.get, None, expected_rc, parse_json, headers, params, func)
 
-    def get(self, uri, expected_rc, parse_json, params=None, func=lambda x: x):
-        return self.__make_request(uri, requests.get, None, expected_rc, parse_json, params, func)
+    def post(self, uri, data, expected_rc, parse_json, headers=None, params=None, func=lambda x: x):
+        return self.__make_request(uri, requests.post, data, expected_rc, parse_json, headers, params, func)
 
-    def post(self, uri, data, expected_rc, parse_json, params=None, func=lambda x: x):
-        return self.__make_request(uri, requests.post, data, expected_rc, parse_json, params, func)
+    def put(self, uri, data, expected_rc, parse_json, headers=None, params=None, func=lambda x: x):
+        return self.__make_request(uri, requests.put, data, expected_rc, parse_json, headers, params, func)
 
-    def put(self, uri, data, expected_rc, parse_json, params=None, func=lambda x: x):
-        return self.__make_request(uri, requests.put, data, expected_rc, parse_json, params, func)
+    def patch(self, uri, data, expected_rc, parse_json, headers=None, params=None, func=lambda x: x):
+        return self.__make_request(uri, requests.patch, data, expected_rc, parse_json, headers, params, func)
 
-    def patch(self, uri, data, expected_rc, parse_json, params=None, func=lambda x: x):
-        return self.__make_request(uri, requests.patch, data, expected_rc, parse_json, params, func)
-
-    def delete(self, uri, data, expected_rc, parse_json, params=None, func=lambda x: x):
-        return self.__make_request(uri, requests.delete, data, expected_rc, parse_json, params, func)
+    def delete(self, uri, data, expected_rc, parse_json, headers=None, params=None, func=lambda x: x):
+        return self.__make_request(uri, requests.delete, data, expected_rc, parse_json, headers, params, func)
 
     def start_recording(self, project_type, project, msgflow):
         return self.post(f'/apiv2/{project_type}/{project}/messageflows/{msgflow}/start-recording', None, 200,
-                         parse_json=False, params=None, func=lambda x: x)
+                         parse_json=False, headers=None, params=None, func=lambda x: x)
 
     def stop_recording(self, project_type, project, msgflow):
         return self.post(f'/apiv2/{project_type}/{project}/messageflows/{msgflow}/stop-recording', None, 200,
-                         parse_json=False, params=None, func=lambda x: x)
+                         parse_json=False, headers=None, params=None, func=lambda x: x)
 
     def start_injection(self, project_type, project, msgflow):
         return self.post(f'/apiv2/{project_type}/{project}/messageflows/{msgflow}/start-injection', None, 200,
-                         parse_json=False, params=None, func=lambda x: x)
+                         parse_json=False, headers=None, params=None, func=lambda x: x)
 
     def stop_injection(self, project_type, project, msgflow):
         return self.post(f'/apiv2/{project_type}/{project}/messageflows/{msgflow}/stop-injection', None, 200,
-                         parse_json=False, params=None, func=lambda x: x)
+                         parse_json=False, headers=None, params=None, func=lambda x: x)
 
     def inject(self, project_type, project, msgflow, input_node, data):
         return self.post(f'/apiv2/{project_type}/{project}/messageflows/{msgflow}/nodes/{input_node}/inject', data, 200,
-                         parse_json=False, params=None, func=lambda x: x)
+                         parse_json=False, headers={'Content-Type': 'application/json',
+                                                    'Accept-Encoding': 'gzip, deflate, br'},
+                         params=None, func=lambda x: x)
 
-    def get_recorded_test_data(self, parse_ace_records: bool = False):
+    def get_recorded_test_data(self):
         return self.get(f'/apiv2/data/recorded-test-data', 200, parse_json=True, params=None, func=lambda x:
-                        list(self.__class__.__record_parse(parse_ace_records)(y) for y in x.get("recordedTestData", list())))
+                        x.get("recordedTestData", list()))
 
     def delete_recorded_test_data(self):
-        return self.delete(f'/apiv2/data/recorded-test-data', None, 200, parse_json=True, params=None, func=lambda x: x)
+        return self.delete(f'/apiv2/data/recorded-test-data', None, 204, parse_json=False, params=None,
+                           func=lambda x: x)
