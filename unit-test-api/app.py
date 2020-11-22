@@ -1,7 +1,8 @@
 import json
 import os
 import time
-
+from lxml import etree
+from io import StringIO
 import requests
 from flask import Flask, request
 from flask_httpauth import HTTPBasicAuth
@@ -55,6 +56,14 @@ def api_response(project_type, result):
     return result
 
 
+def is_valid_query(query):
+    try:
+        etree.ETXPath(query)
+        return True
+    except etree.XPathSyntaxError:
+        return False
+
+
 def process_queries(req, save_dir, replace_allowed):
     """" First checks if the request is a simple dictionary with string keys and string values. If so, the queries in
     the request message are saved to disk
@@ -70,7 +79,9 @@ def process_queries(req, save_dir, replace_allowed):
         return f"Not all query names or values are strings", 400
     for query_name, query_value in req_obj.items():
         exists = os.path.exists(os.path.join(save_dir, query_name))
-        if not replace_allowed and exists:
+        if not is_valid_query(query_value):
+            result_dict[query_name] = "invalid XPath expression"
+        elif not replace_allowed and exists:
             result_dict[query_name] = "not created: already exists"
         elif replace_allowed and not exists:
             result_dict[query_name] = "not replaced: does not exist"
@@ -110,9 +121,28 @@ class Query(Resource):
                                                                        terminal), True))
 
 
-def perform_queries(test_payload, project_type, project, msgflow):
-    # TODO write code to get all flow queries from disk and execute
-    return {'message': 'success'}, 200
+def query_dict_for_record(record, touched_queries):
+    result = dict()
+    if len(touched_queries) > 0:
+        parsed_record = etree.parse(StringIO(record.test_data_xml()))
+        result.update(dict((q_name, {'query': q_value,
+                                     'result': list(x.text for x in etree.ETXPath(q_value)(parsed_record))})
+                           for q_name, q_value in touched_queries.items()))
+    return result
+
+
+def perform_queries(records, project_type, project, msgflow):
+    all_queries = subdirs_file_content_to_dict(os.path.join(data_dir, project_type, project, msgflow),
+                                               split_by_line=False, subdict_by_path=True)
+    result = list({'from': {'node': record.source_node, 'terminal': record.source_terminal},
+                   'to': {'node': record.target_node, 'terminal': record.target_terminal},
+                   'queries': query_dict_for_record(record,
+                                                    all_queries.get(record.source_node, dict()).get(
+                                                        record.source_terminal, dict()) |
+                                                    all_queries.get(record.target_node, dict()).get(
+                                                        record.target_terminal, dict()))}
+                  for record in records)
+    return result, 200
 
 
 class Exerciser(Resource):
@@ -123,16 +153,18 @@ class Exerciser(Resource):
             ace_conn.start_recording(project_type, project, msgflow)
             ace_conn.start_injection(project_type, project, msgflow)
             ace_conn.inject(project_type, project, msgflow, node, request.data)
-            test_payload = ace_conn.get_recorded_test_data()
+            ace_conn.stop_injection(project_type, project, msgflow)
+            ace_conn.stop_recording(project_type, project, msgflow)
+            test_payload = sorted(filter(lambda x: x.application == project and x.message_flow == msgflow,
+                                         map(lambda x: ACERecord(x), ace_conn.get_recorded_test_data())),
+                                  key=lambda x: x.flow_sequence_number)
+            ace_conn.delete_recorded_test_data()
             result = perform_queries(test_payload, project_type, project, msgflow)
         except ACEConnectionError as e:
             result = e, 500
         except Exception:
-            result = {"error": "An error not related to ACE connections occurred occurred."}, 500
+            result = {"error": "An error not related to ACE connections occurred."}, 500
         finally:
-            ace_conn.stop_injection(project_type, project, msgflow)
-            ace_conn.stop_recording(project_type, project, msgflow)
-            ace_conn.delete_recorded_test_data()
             return result
 
 
