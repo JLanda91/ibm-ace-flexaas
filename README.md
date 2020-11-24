@@ -17,17 +17,17 @@ De meest prominente functionaliteit waarvan in dit project extensief gebruikt wo
 ### Flow recording en injecting
 Het recorden zet je per messageflow aan, en om een bericht te kunnen exercisen kan behalve het van buiten aanroepen, ook injection aangezet worden. Uiteindelijk worden de test records opgehaald en verwijderd. Het voordeel van injection t.o.v. het van buiten inbrengen van het bericht is dat injection invariant is onder het type input node en dus het benaderprotocol (HTTP/MQ/enz).
 
-> POST /apiv2/\{project_type}/\{project_name}/messageflows/\{messageflow_name}/start-recording
+> ```POST /apiv2/{project_type}/{project_name}/messageflows/{messageflow_name}/start-recording```
 
-> POST /apiv2/\{project_type}/\{project_name}/messageflows/\{messageflow_name}/stop-recording
+> ```POST /apiv2/{project_type}/{project_name}/messageflows/{messageflow_name}/stop-recording```
 
-> POST /apiv2/\{project_type}/\{project_name}/messageflows/\{messageflow_name}/start-injection
+> ```POST /apiv2/{project_type}/{project_name}/messageflows/{messageflow_name}/start-injection```
 
-> POST /apiv2/\{project_type}/\{project_name}/messageflows/\{messageflow_name}/stop-injection
+> ```POST /apiv2/{project_type}/{project_name}/messageflows/{messageflow_name}/stop-injection```
 
-> GET /apiv2/data/recorded-test-data
+> ```GET /apiv2/data/recorded-test-data```
 
-> DELETE /apiv2/data/recorded-test-data
+> ```DELETE /apiv2/data/recorded-test-data```
 
 ### Test records
 De test records die hieruit volgen zien er als volgt uit
@@ -102,7 +102,7 @@ Een API die dient als message store. Je kunt hier handmatig records heensturen, 
 Simpel API met een in-memory cache voor mock responses:
 - mock id: zelf op te geven door de gebruiker
 - mock value: mock response als string
-De key is op te geven als parameter (?id=)
+De key is op te geven als parameter (```?id=```). Vergelijkbaar met een Redis instantie. Dit is handig als ACE backend services aan moet roepen die gemockt moeten worden. Operaties voor toevoegen/ophalen van mock responses, en het opschonen van de in-memory cache.
 
 ### unit-test-api
 Een API met een Query resource en een exerciser. 
@@ -110,3 +110,23 @@ Een API met een Query resource en een exerciser.
 - De exerciser slikt een testData JSON (zoals in de test records: met base64 encoded root trees) en inject dit in gespecificeerde input node van de input node van de messageflow. Recording wordt dan ingeschakeld. De records die terug komen worden gesorteert op sequence numbers en als de van/naar node en terminal matchen met de Query resource, wordt deze XPath uitgevoerd en het resultaat bewaard. De exerciser API geeft een object terug met info over de nodes en terminals die in volgorde worden geraakt, met per connectie de geraakte queries en de resultaten.
 
 ## Kubernetes architectuur
+
+### Exposen van apps
+De meeste componenten gebruiken de volgende Kubernetes opzet:
+
+![Overview Componenten](doc/exposing apps.png)
+
+Dit geldt voor:
+- ace-test en ace-accp (slechts één pod per test/accp deployment). Gebruikt geen PV en PVC (Persistent Volumes en Persistent Volume Claims)
+- inputmsg-api
+- unit-test api
+- stub-endpoint, exclusief de PV en PVC.
+
+Een vlugge uitleg voor de Kubernetes leken:
+- De Kubernetes pods bevatten de applicatie, hebben elk hun eigen IP (wat wisselt met het omvallen en herstarten van containers), en zijn onbereikaar van buitenaf
+- Een Kubernetes service is een object dat één IP heeft en poorten naar bepaalde pod poorten doorverwijzen. Zo zijn alle pods van een deployment intern bereikbaar met adres ``` k8s_servicenaam.k8s_namespace:port```
+- Een Kubernetes ingress verbindt een subdomein en eventueel uri prefixes met een kubernetes service. Zo kun je elegant je service benaderen met ```subdomain.cloudhostname.com/uri```. Gebruik hiervan is afhankelijk van de ingress controller die je cloud met zich meeneemt. 
+
+> *Opmerking: de IBM Cloud ingress controller biedt geen 'SSL passthrough', wat inhoudt dat de controller inkomend verkeer niet versleuteld kan doorsturen naar backend apps. Dit heet 'SSL termination'. Daarom zijn alle apps niet met HTTPS versleuteld, wat niet nodig is omdat het inkomend verkeer op de cloud ingress service wel versleuteld is en alles binnen Kubernetes onbereikbaar is van buiten.*
+
+
