@@ -76,8 +76,8 @@ def get_messages(req):
     def path_filter(x):
         return x.startswith(path_filter_string) and ts_from <= x.split(os.path.sep)[-1] < ts_to
 
-    payload["testData"] = subdirs_file_content_to_dict(data_dir, split_by_line=False, subdict_by_path=True,
-                                                       path_filter=path_filter)
+    payload = subdirs_file_content_to_dict(data_dir, split_by_line=False, subdict_by_path=True,
+                                           path_filter=path_filter)
     return payload, 200
 
 

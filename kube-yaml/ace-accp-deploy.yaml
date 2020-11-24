@@ -19,7 +19,7 @@ spec:
         app: ace-accp
     spec:
       containers:
-      - image: jasperlanda/eod20-ace:latest
+      - image: de.icr.io/landa/eod20-ace:latest
         name: myace
         resources: {}
         env:
@@ -28,5 +28,5 @@ spec:
         - name: ACE_SERVER_NAME
           value: K8SSERVER
       imagePullSecrets:
-      - name: regcred
+      - name: icr
 status: {}

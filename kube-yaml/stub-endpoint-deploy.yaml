@@ -19,8 +19,8 @@ spec:
         app: stub
     spec:
       containers:
-      - image: jasperlanda/eod20-stub-endpoint:latest
+      - image: de.icr.io/landa/eod20-stub-endpoint:latest
         name: stub-endpoint
       imagePullSecrets:
-      - name: regcred
+      - name: icr
 status: {}

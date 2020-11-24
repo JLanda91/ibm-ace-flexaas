@@ -3,8 +3,7 @@ $NS = "eod20"
 $Color = "Green"
 $StubPort = 8080
 
-Write-Host "Creating namespace $NS" -fore $Color
-kubectl create ns $NS
+.\util-ps\create-k8s-ns-and-ips.ps1 -NS $NS
 
 Write-Host "Creating stub single pod deployment" -fore $Color
 .\util-ps\apply-k8s-resource.ps1 -File ".\kube-yaml\stub-endpoint-deploy.yaml" -NS "$NS"

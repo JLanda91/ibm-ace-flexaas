@@ -19,7 +19,7 @@ spec:
         app: unit-test-api
     spec:
       containers:
-      - image: jasperlanda/eod20-unit-test-api:latest
+      - image: de.icr.io/landa/eod20-unit-test-api:latest
         name: unit-test-api
         env:
         - name: EOD20_UNITTESTAPI_MOUNT_PATH
@@ -42,5 +42,5 @@ spec:
         persistentVolumeClaim:
           claimName: unit-test-api-pvc
       imagePullSecrets:
-      - name: regcred
+      - name: icr
 status: {}

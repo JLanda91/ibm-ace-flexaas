@@ -19,7 +19,7 @@ spec:
         app: inputmsg-api
     spec:
       containers:
-      - image: jasperlanda/eod20-inputmsg-api:latest
+      - image: de.icr.io/landa/eod20-inputmsg-api:latest
         name: inputmsg-api
         env:
         - name: EOD20_INPUTMSGAPI_MOUNT_PATH
@@ -37,5 +37,5 @@ spec:
         persistentVolumeClaim:
           claimName: inputmsg-api-pvc
       imagePullSecrets:
-      - name: regcred
+      - name: icr
 status: {}

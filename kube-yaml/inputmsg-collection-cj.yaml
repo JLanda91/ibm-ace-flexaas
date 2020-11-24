@@ -14,7 +14,7 @@ spec:
           creationTimestamp: null
         spec:
           containers:
-          - image: jasperlanda/eod20-inputmsg-collection
+          - image: de.icr.io/landa/eod20-inputmsg-collection
             name: inputmsg-collection
             resources: {}
             env:
@@ -33,5 +33,7 @@ spec:
           - name: api-users
             secret:
               secretName: inputmsg-api-users-secret
+          imagePullSecrets:
+          - name: icr
   schedule: '*/5 * * * *'
 status: {}

@@ -8,7 +8,7 @@ metadata:
   namespace: eod20
 spec:
   containers:
-  - image: jasperlanda/eod20-inputmsg-collection
+  - image: de.icr.io/landa/eod20-inputmsg-collection
     name: test-pod
     resources: {}
     env:
@@ -28,4 +28,6 @@ spec:
       secretName: inputmsg-api-users-secret
   dnsPolicy: ClusterFirst
   restartPolicy: Never
+  imagePullSecrets:
+  - name: icr
 status: {}

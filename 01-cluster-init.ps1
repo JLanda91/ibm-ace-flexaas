@@ -34,9 +34,6 @@ ibmcloud ks cluster config --cluster $ClusterName
 Write-Host "Getting the current Kubernetes context..." -fore $Color
 kubectl config current-context
 
-Write-Host "Creating secret from dockerconfig json..." -fore $Color
-kubectl create secret generic regcred --from-file=.dockerconfigjson=$HOME\.docker\config.json --type=kubernetes.io/dockerconfigjson
-
 Write-Host "Getting cluster ALB hostname and replace in ingress rules..." -fore $Color
 $ClusterHostName = .\util-ps\get-cluster-hostname -ClusterName "$ClusterName"
 

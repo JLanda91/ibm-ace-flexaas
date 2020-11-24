@@ -1,4 +1,4 @@
-FROM jasperlanda/eod20-pyace
+FROM de.icr.io/landa/eod20-pyace
 RUN pip install requests flask_httpauth
 WORKDIR /app
 COPY app.py .

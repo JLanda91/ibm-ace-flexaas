@@ -1,10 +1,8 @@
 $ErrorActionPreference = "Stop"
 $NS = "ace"
 $Color = "Green"
-$AcePort = 7600
 
-Write-Host "Creating namespace $NS" -fore $Color
-kubectl create ns $NS
+.\util-ps\create-k8s-ns-and-ips.ps1 -NS $NS
 
 foreach ($ta in "test","accp"){
 	Write-Host "Creating ACE (${ta}) single pod deployment" -fore $Color
