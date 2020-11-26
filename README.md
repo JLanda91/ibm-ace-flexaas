@@ -90,7 +90,7 @@ En zoals je ziet, zit een record vol bruikbare info:
 
 ### inputmsg-collection
 Een Kubernetes CronJob die je kunt configureren om naar een acceptatie-ACE te wijzen die elke keer:
-1. Alle ACE records ophaalt en de input messages (invocationUUID = inputMessageUUID) laat opslaan via de inputmsg-apiv2
+1. Alle ACE records ophaalt en de input messages (invocationUUID = inputMessageUUID) laat opslaan via de inputmsg-api.
 2. Haalt via de ACE Admin REST API alle draaiende projecten op en zet recording aan op al deze flows.
 
 Beschouwbaar als een de component van een automatic message store die berichten op interval basis ophaalt.
@@ -100,8 +100,8 @@ Een API die dient als message store. Je kunt hier handmatig records heensturen, 
 
 ### stub-endpoint
 Simpel API met een in-memory cache voor mock responses:
-- mock id: zelf op te geven door de gebruiker
-- mock value: mock response als string
+- mock id: zelf op te geven door de gebruiker.
+- mock value: mock response als string.
 De key is op te geven als parameter (```?id=```). Vergelijkbaar met een Redis instantie. Dit is handig als ACE backend services aan moet roepen die gemockt moeten worden. Operaties voor toevoegen/ophalen van mock responses, en het opschonen van de in-memory cache.
 
 ### unit-test-api
@@ -117,16 +117,26 @@ De meeste componenten gebruiken de volgende Kubernetes opzet:
 ![Overview Componenten](doc/exposing apps.png)
 
 Dit geldt voor:
-- ace-test en ace-accp (slechts één pod per test/accp deployment). Gebruikt geen PV en PVC (Persistent Volumes en Persistent Volume Claims)
-- inputmsg-api
-- unit-test api
+- ace-test en ace-accp (slechts één pod per test/accp deployment). Gebruikt geen PV en PVC (Persistent Volumes en Persistent Volume Claims).
+- inputmsg-api.
+- unit-test api.
 - stub-endpoint, exclusief de PV en PVC.
 
 Een vlugge uitleg voor de Kubernetes leken:
-- De Kubernetes pods bevatten de applicatie, hebben elk hun eigen IP (wat wisselt met het omvallen en herstarten van containers), en zijn onbereikaar van buitenaf
-- Een Kubernetes service is een object dat één IP heeft en poorten naar bepaalde pod poorten doorverwijzen. Zo zijn alle pods van een deployment intern bereikbaar met adres ``` k8s_servicenaam.k8s_namespace:port```
+- De Kubernetes pods bevatten de applicatie, hebben elk hun eigen IP (wat wisselt met het omvallen en herstarten van containers), en zijn onbereikaar van buitenaf.
+- Een Kubernetes service is een object dat één IP heeft en poorten naar bepaalde pod poorten doorverwijzen. Zo zijn alle pods van een deployment intern bereikbaar met adres ``` k8s_servicenaam.k8s_namespace:port```.
 - Een Kubernetes ingress verbindt een subdomein en eventueel uri prefixes met een kubernetes service. Zo kun je elegant je service benaderen met ```subdomain.cloudhostname.com/uri```. Gebruik hiervan is afhankelijk van de ingress controller die je cloud met zich meeneemt. 
+- Een Kubernetes PVC (PersistentVolumeClaim) wordt aan een pod gebonden en zorgt dat er ruimte gereserveerd wordt op een PV (PersistenVolume). In het geval van de (IBM) cloud wordt er cloud block/file storage aangemaakt.
 
 > *Opmerking: de IBM Cloud ingress controller biedt geen 'SSL passthrough', wat inhoudt dat de controller inkomend verkeer niet versleuteld kan doorsturen naar backend apps. Dit heet 'SSL termination'. Daarom zijn alle apps niet met HTTPS versleuteld, wat niet nodig is omdat het inkomend verkeer op de cloud ingress service wel versleuteld is en alles binnen Kubernetes onbereikbaar is van buiten.*
 
 
+## Installatie
+Alle Kubernetes resources kunnen gemakkelijk geïnstalleerd worden met de Helm chart:
+
+1. Open de Helm chart values: ```helm/ace-unit-test-util/values.yaml``` en pas aan waar nodig (zie subsectie over de uitleg van de helm chart values) 
+2. Creëer de namespace voor de componenten: ```kubectl create ns <namespace>```
+3. Installeer de Helm chart: ```helm install ace-unit-test-util .\helm\ace-unit-test-util\ -n <namespace>```
+
+### Helm chart values
+TBD

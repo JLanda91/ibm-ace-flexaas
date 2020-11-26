@@ -1,18 +1,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: eod20
-  name: inputmsg-api-svc
+  name: unit-test-api-svc
   labels:
-    app: inputmsg-api
+    app: unit-test-api
 spec:
   ports:
-  - port: 8080
+  - port: 8082
     protocol: TCP
-    targetPort: 8080
-    name: "8080"
+    targetPort: 8082
+    name: "8082"
   selector:
-    app: inputmsg-api
+    app: unit-test-api
   sessionAffinity: None
   type: ClusterIP
 status:

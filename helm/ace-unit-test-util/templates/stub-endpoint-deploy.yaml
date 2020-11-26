@@ -5,9 +5,8 @@ metadata:
   labels:
     app: stub
   name: stub-endpoint
-  namespace: eod20
 spec:
-  replicas: 1
+  replicas: {{ .Values.stubEndpoint.replicas }}
   selector:
     matchLabels:
       app: stub
@@ -19,8 +18,8 @@ spec:
         app: stub
     spec:
       containers:
-      - image: de.icr.io/landa/eod20-stub-endpoint:latest
+      - image: {{  printf "%s/eod20-stub-endpoint:%s" .Values.imageRepo .Values.stubEndpoint.tag }}
         name: stub-endpoint
       imagePullSecrets:
-      - name: icr
+      - name: {{ .Values.imagePullSecret }}
 status: {}

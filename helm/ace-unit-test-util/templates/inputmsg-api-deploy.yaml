@@ -5,21 +5,19 @@ metadata:
   labels:
     app: inputmsg-api
   name: inputmsg-api
-  namespace: eod20
 spec:
-  replicas: 1
+  replicas: {{ .Values.inputMsgApi.replicas }}
   selector:
     matchLabels:
       app: inputmsg-api
   strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: inputmsg-api
     spec:
       containers:
-      - image: de.icr.io/landa/eod20-inputmsg-api:latest
+      - image: {{  printf "%s/eod20-inputmsg-api:%s" .Values.imageRepo .Values.inputMsgApi.tag }}
         name: inputmsg-api
         env:
         - name: EOD20_INPUTMSGAPI_MOUNT_PATH
@@ -32,10 +30,10 @@ spec:
       volumes:
       - name: users
         secret:
-          secretName: inputmsg-api-users-secret
+          secretName: inputmsg-api-users
       - name: data
         persistentVolumeClaim:
           claimName: inputmsg-api-pvc
       imagePullSecrets:
-      - name: icr
+      - name: {{ .Values.imagePullSecret }}
 status: {}

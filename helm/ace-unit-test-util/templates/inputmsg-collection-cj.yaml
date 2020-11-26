@@ -2,11 +2,9 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: inputmsg-collection-cj
-  namespace: eod20
 spec:
   jobTemplate:
     metadata:
-      creationTimestamp: null
       name: inputmsg-collection-cj
     spec:
       template:
@@ -14,7 +12,7 @@ spec:
           creationTimestamp: null
         spec:
           containers:
-          - image: de.icr.io/landa/eod20-inputmsg-collection
+          - image: {{  printf "%s/eod20-inputmsg-collection:%s" .Values.imageRepo .Values.inputMsgCollection.tag }}
             name: inputmsg-collection
             resources: {}
             env:
@@ -34,6 +32,6 @@ spec:
             secret:
               secretName: inputmsg-api-users-secret
           imagePullSecrets:
-          - name: icr
-  schedule: '*/5 * * * *'
+          - name: {{ .Values.imagePullSecret }}
+  schedule: {{ .Values.inputMsgCollection.schedule | quote }}
 status: {}

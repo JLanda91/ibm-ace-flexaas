@@ -1,0 +1,45 @@
+ibmCloudKsHost: eod20-618dd4f5cf576582d05dea2fdbda72d6-0000.eu-de.containers.appdomain.cloud
+
+imageRepo: de.icr.io/landa
+
+imagePullSecret: icr
+
+ingress:
+  annotations: 
+    ingress.bluemix.net/redirect-to-https: "True"
+
+stubEndpoint:
+  tag: latest
+  replicas: 1
+ 
+inputMsgApi:
+  tag: latest
+  replicas: 1
+  storage: 3Gi
+  auth:
+    user1: pw1
+    user2: pw2
+  
+inputMsgCollection:
+  tag: latest
+  schedule: "*/3 * * * *"
+  
+unitTestApi:
+  tag: latest
+  replicas: 1
+  storage: 3Gi
+  auth:
+    user1: pw1
+    user2: pw2
+  
+aceTest:
+  host: ace-test-svc.ace
+  port: "7600"
+  user: admin1
+  pw: admin1
+  
+aceAccp:
+  host: ace-accp-svc.ace
+  port: "7600"
+  user: admin1
+  pw: admin1

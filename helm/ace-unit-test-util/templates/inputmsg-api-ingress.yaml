@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: inputmsg-api-ingress
+  annotations: {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  tls:
+  - hosts:
+    - {{ printf "input-msg-api.%s" .Values.ibmCloudKsHost }}
+    secretName: {{ .Values.ibmCloudKsHost }}
+  rules:
+  - host: {{ printf "input-msg-api.%s" .Values.ibmCloudKsHost }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: inputmsg-api-svc
+            port:
+              number: 8080

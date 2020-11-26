@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
- name: inputmsg-api-pvc
+ name: unit-test-api-pvc
  labels:
-   app: inputmsg-api
+   app: unit-test-api
 spec:
  accessModes:
    - ReadWriteMany
  resources:
    requests:
-     storage: 10Gi
+     storage: {{ .Values.unitTestApi.storage }}
  storageClassName: ibmc-file-retain-gold

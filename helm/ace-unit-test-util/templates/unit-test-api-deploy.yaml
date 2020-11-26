@@ -5,21 +5,19 @@ metadata:
   labels:
     app: unit-test-api
   name: unit-test-api
-  namespace: eod20
 spec:
-  replicas: 1
+  replicas: {{ .Values.unitTestApi.replicas }}
   selector:
     matchLabels:
       app: unit-test-api
   strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: unit-test-api
     spec:
       containers:
-      - image: de.icr.io/landa/eod20-unit-test-api:latest
+      - image: {{  printf "%s/eod20-unit-test-api:%s" .Values.imageRepo .Values.unitTestApi.tag }}
         name: unit-test-api
         env:
         - name: EOD20_UNITTESTAPI_MOUNT_PATH
@@ -34,7 +32,7 @@ spec:
       volumes:
       - name: users
         secret:
-          secretName: unit-test-api-users-secret
+          secretName: unit-test-api-users
       - name: ace-config
         secret:
           secretName: ace-test-config
@@ -42,5 +40,5 @@ spec:
         persistentVolumeClaim:
           claimName: unit-test-api-pvc
       imagePullSecrets:
-      - name: icr
+        - name: {{ .Values.imagePullSecret }}
 status: {}
