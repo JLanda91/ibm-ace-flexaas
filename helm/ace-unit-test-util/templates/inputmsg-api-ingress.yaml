@@ -7,7 +7,7 @@ spec:
   tls:
   - hosts:
     - {{ printf "input-msg-api.%s" .Values.ibmCloudKsHost }}
-    secretName: {{ .Values.ibmCloudKsHost }}
+    secretName: {{ .Values.tlsSecret }}
   rules:
   - host: {{ printf "input-msg-api.%s" .Values.ibmCloudKsHost }}
     http:

@@ -30,7 +30,7 @@ spec:
               secretName: ace-accp-config
           - name: api-users
             secret:
-              secretName: inputmsg-api-users-secret
+              secretName: inputmsg-api-users
           imagePullSecrets:
           - name: {{ .Values.imagePullSecret }}
   schedule: {{ .Values.inputMsgCollection.schedule | quote }}

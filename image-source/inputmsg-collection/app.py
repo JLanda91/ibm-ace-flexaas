@@ -1,8 +1,9 @@
-from pyace.ace import ACEConnection
-from pyace.ace import ACERecord
-import os
 import json
+import os
+
 import requests
+from pyace.ace import ACEConnection
+from pyace.kube import subdirs_file_content_to_dict
 
 mount_path = os.environ.get('EOD20_INPUTMSGCOLL_MOUNT_PATH')
 ace_config_dir = os.path.join(mount_path, "ace-config")
@@ -15,21 +16,14 @@ for file in ("host", "port", "https", "user", "pw"):
     ace_config[file] = value
     f.close()
 
-user = list(filter(lambda x: x[:2] != "..", os.listdir(api_user_dir)))[0]
-pw = open(os.path.join(api_user_dir, user), "r").readlines()[0]
+api_users = subdirs_file_content_to_dict(api_user_dir, subdict_by_path=True, split_by_line=False)
+user, pw = list(api_users.items())[0]
 
 ace_auth = requests.auth.HTTPBasicAuth(ace_config["user"], ace_config["pw"])
 upload_auth = requests.auth.HTTPBasicAuth(user, pw)
 
-ace_conn = ACEConnection(
-    host=ace_config["host"],
-    admin_port=int(ace_config["port"]),
-    http_port=7800,
-    https_port=7843,
-    admin_https=False,
-    user=ace_config["user"],
-    pw=ace_config["pw"]
-)
+ace_conn = ACEConnection(host=ace_config["host"], admin_port=int(ace_config["port"]), http_port=7800, https_port=7843,
+                         admin_https=False, user=ace_config["user"], pw=ace_config["pw"])
 
 
 def jsonize(x):
@@ -49,15 +43,12 @@ else:
 
     # upload the input messages to the inputmsg-api
     print("Uploading records to inputmsg-api...")
-    upload_response = requests.post(f"http://inputmsg-api-svc.eod20:8080",
-                                    auth=upload_auth,
-                                    data=json.dumps(input_messages),
-                                    verify=False,
-                                    params=None)
+    upload_response = requests.post(f"http://inputmsg-api-svc:8080", auth=upload_auth, data=json.dumps(input_messages),
+                                    verify=False, params=None)
 
     if upload_response.status_code == 201:
         print("Successful! Deleting the test date from the ACE server...")
-        ace_conn.delete_recorded_test_data()
+        delete_response = ace_conn.delete_recorded_test_data()
         if delete_response.status_code == 201:
             print("Successful!")
         else:
@@ -72,46 +63,32 @@ print()
 print("Making sure recording is switched on all flows...")
 # determine which project types are deployed on the ACE server
 project_types = ("applications", "rest-apis", "services")
-has_project_types = ace_conn.get(uri="/apiv2",
-                                 expected_rc=200,
-                                 parse_json=True,
-                                 params=None,
+has_project_types = ace_conn.get(uri="/apiv2", expected_rc=200, parse_json=True, params=None,
                                  func=lambda x: dict(
                                      (y, x["children"][jsonize(y)]["hasChildren"]) for y in project_types))
 
 data = dict()
 # for each project type currently deployed on the ACE server
 for project_type in filter(lambda x: has_project_types[x], project_types):
-    projects = ace_conn.get(uri=f"/apiv2/{project_type}",
-                            expected_rc=200,
-                            parse_json=True,
-                            params=None,
+    projects = ace_conn.get(uri=f"/apiv2/{project_type}", expected_rc=200, parse_json=True, params=None,
                             func=lambda x: tuple((y["name"], y["uri"]) for y in x["children"]))
     data[project_type] = dict((name, dict()) for name, uri in projects)
     print(project_type)
     # for each project name
     for project_name, project_uri in projects:
-        flows = ace_conn.get(uri=f"{project_uri}/messageflows",
-                             expected_rc=200,
-                             parse_json=True,
-                             params=None,
+        flows = ace_conn.get(uri=f"{project_uri}/messageflows", expected_rc=200, parse_json=True, params=None,
                              func=lambda x: tuple((y["name"], y["uri"]) for y in x["children"]))
         data[project_type][project_name] = dict((name, dict()) for name, uri in flows)
         print("\t", project_name)
         # for each flow in the project
         for flow_name, flow_uri in flows:
-            recording_on = ace_conn.get(uri=f"{flow_uri}",
-                                        expected_rc=200,
-                                        parse_json=True,
-                                        params=None,
+            recording_on = ace_conn.get(uri=f"{flow_uri}", expected_rc=200, parse_json=True, params=None,
                                         func=lambda x: "stop-recording" in x["actions"]["available"].keys())
             print("\t" * 2, flow_name, end=": ")
 
             # if recording is not on
             if not recording_on:
-                recording_toggle = ace_conn.post(uri=f"{flow_uri}/start-recording",
-                                                 data="",
-                                                 expected_rc=200,
+                recording_toggle = ace_conn.post(uri=f"{flow_uri}/start-recording", data="", expected_rc=200,
                                                  parse_json=False)
                 print("Switched ON")
             else:

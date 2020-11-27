@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ace-accp-ingress
+  annotations: {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  tls:
+  - hosts:
+    - {{ printf "ace-accp-admin.%s" .Values.ibmCloudKsHost }}
+    - {{ printf "ace-accp-services.%s" .Values.ibmCloudKsHost }}
+    secretName: {{ .Values.tlsSecret }}
+  rules:
+  - host: {{ printf "ace-accp-admin.%s" .Values.ibmCloudKsHost }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ace-accp-svc
+            port:
+              number: 7600
+  - host: {{ printf "ace-accp-services.%s" .Values.ibmCloudKsHost }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ace-accp-svc
+            port:
+              number: 7800

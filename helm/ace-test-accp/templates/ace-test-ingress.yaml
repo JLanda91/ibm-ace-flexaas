@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ace-test-ingress
+  annotations: {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  tls:
+  - hosts:
+    - {{ printf "ace-test-admin.%s" .Values.ibmCloudKsHost }}
+    - {{ printf "ace-test-services.%s" .Values.ibmCloudKsHost }}
+    secretName: {{ .Values.tlsSecret }}
+  rules:
+  - host: {{ printf "ace-test-admin.%s" .Values.ibmCloudKsHost }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ace-test-svc
+            port:
+              number: 7600
+  - host: {{ printf "ace-test-services.%s" .Values.ibmCloudKsHost }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ace-test-svc
+            port:
+              number: 7800

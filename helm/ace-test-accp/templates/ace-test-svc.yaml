@@ -1,10 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: ace
-  name: ace-accp-svc
+  name: ace-test-svc
   labels:
-    app: ace-accp
+    app: ace-test
 spec:
   ports:
   - port: 10009
@@ -20,7 +19,7 @@ spec:
     targetPort: 7800
     name: http
   selector:
-    app: ace-accp
+    app: ace-test
   sessionAffinity: None
   type: ClusterIP
 status:

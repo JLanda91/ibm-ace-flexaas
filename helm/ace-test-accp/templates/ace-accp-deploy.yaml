@@ -5,7 +5,6 @@ metadata:
   labels:
     app: ace-accp
   name: ace-accp-deploy
-  namespace: ace
 spec:
   replicas: 1
   selector:
@@ -19,7 +18,7 @@ spec:
         app: ace-accp
     spec:
       containers:
-      - image: de.icr.io/landa/eod20-ace:latest
+      - image: {{  printf "%s/eod20-ace:%s" .Values.imageRepo .Values.aceAccp.tag}}
         name: myace
         resources: {}
         env:
@@ -28,5 +27,5 @@ spec:
         - name: ACE_SERVER_NAME
           value: K8SSERVER
       imagePullSecrets:
-      - name: icr
+      - name: {{ .Values.imagePullSecret }}
 status: {}

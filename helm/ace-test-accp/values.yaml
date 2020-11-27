@@ -1,0 +1,16 @@
+ibmCloudKsHost: eod20-618dd4f5cf576582d05dea2fdbda72d6-0000.eu-de.containers.appdomain.cloud
+tlsSecret: eod20-618dd4f5cf576582d05dea2fdbda72d6-0000
+
+imageRepo: de.icr.io/landa
+
+imagePullSecret: icr
+
+ingress:
+  annotations: 
+    ingress.bluemix.net/redirect-to-https: "True"
+  
+aceTest:
+  tag: latest
+  
+aceAccp:
+  tag: latest

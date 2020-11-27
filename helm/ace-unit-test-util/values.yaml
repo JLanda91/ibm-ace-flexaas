@@ -1,4 +1,5 @@
 ibmCloudKsHost: eod20-618dd4f5cf576582d05dea2fdbda72d6-0000.eu-de.containers.appdomain.cloud
+tlsSecret: eod20-618dd4f5cf576582d05dea2fdbda72d6-0000
 
 imageRepo: de.icr.io/landa
 
@@ -14,23 +15,23 @@ stubEndpoint:
  
 inputMsgApi:
   tag: latest
-  replicas: 1
+  replicas: 3
   storage: 3Gi
   auth:
     user1: pw1
     user2: pw2
-  
+
+unitTestApi:
+  tag: latest
+  replicas: 3
+  storage: 3Gi
+  auth:
+    user1: pw1
+    user2: pw2
+    
 inputMsgCollection:
   tag: latest
   schedule: "*/3 * * * *"
-  
-unitTestApi:
-  tag: latest
-  replicas: 1
-  storage: 3Gi
-  auth:
-    user1: pw1
-    user2: pw2
   
 aceTest:
   host: ace-test-svc.ace
