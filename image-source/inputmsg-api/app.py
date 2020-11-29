@@ -20,14 +20,26 @@ root_trees = ('message', 'localEnvironment', 'environment', 'exceptionList')
 
 
 def timestamp_to_file(ts):
+    """Function to remove 'T' and non-word characters from a timestamp string, effectively rendering a
+    'yyyy-MM-ddTHHmmSS.sss formatted timestamp into a yyyyMMddHHmmSSsss timestamp
+
+    :param ts: timestamp as string
+    :returns: same string with the non-word characters and 'T' removed."""
     return re.sub(r'[T\W]+', '', ts)
 
 
 def file_to_timestamp(f):
+    """Reverse of timestamp_to_file
+
+    :param f: filename (yyyyMMddHHmmSSsss timestamp)
+    :returns: same string with the format restored"""
     return f"{f[:4]}-{f[4:6]}-{f[6:8]}T{f[8:10]}:{f[10:12]}:{f[12:14]}.{f[14:]}"
 
 
 def save_inputmsg(record):
+    """Saves the four root trees of a record to disk and creates the directories if needed
+
+    :param record: ACERecord instance"""
     print("Saving input message:")
     print("=====================")
     save_dir = os.path.join(data_dir, record.integration_server, record.application, record.message_flow,
@@ -42,6 +54,11 @@ def save_inputmsg(record):
 
 
 def post_messages(req):
+    """Logs integration server, poject name, message flow name, input node name and timestamp of each input message,
+     and saves each input message to disk.
+
+    :param req: the flask request
+    :returns: 201 if input messages are among the payload and have been saved to disk. 204 otherwise."""
     all_records = tuple(ACERecord(elem) for elem in json.loads(req.data))
     inputmsgs = tuple(filter(lambda x: x.is_first_message, all_records))
     for record in inputmsgs:
@@ -53,12 +70,19 @@ def post_messages(req):
         save_inputmsg(record)
         print(f"")
     if len(inputmsgs) > 0:
-        return f"Saved {len(inputmsgs)} input messages", 201
+        return {"message": f"Saved {len(inputmsgs)} input messages"}, 201
     else:
-        return "No input messages among payload", 204
+        return {"message": "No input messages among payload"}, 204
 
 
 def get_messages(req):
+    """Retrieves (filtered) input message root tree files from disk and assembles them organized per integraion_server,
+     project, message_flow name, and input_node and timestamp. URI parameter filters can be applied to select on
+     one or more attributes, but they must be additionally specified in the aforementioned order. Timestamp from and
+     to URI parameters can be specified to select on timestamp.
+
+     :param req: flask request object
+     :returns: a dictionary with server.project.flow.node.timestamp.roottree structure, and a HTTP status code"""
     integration_server = req.args.get('integration_server', '')
     project = req.args.get('project', '')
     message_flow = req.args.get('message_flow', '')
@@ -83,6 +107,7 @@ def get_messages(req):
 
 @auth.verify_password
 def verify_password(username, password):
+    """Default basic auth verification method"""
     if username in user_auth and check_password_hash(user_auth.get(username), password):
         return username
 
@@ -90,6 +115,7 @@ def verify_password(username, password):
 @app.route('/', methods=['GET', 'POST'])
 @auth.login_required
 def inputmsg():
+    """App route to post or get input messages"""
     if request.method == 'POST':
         return post_messages(request)
     else:

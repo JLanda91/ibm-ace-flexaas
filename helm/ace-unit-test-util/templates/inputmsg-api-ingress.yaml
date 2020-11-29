@@ -6,10 +6,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - {{ printf "input-msg-api.%s" .Values.ibmCloudKsHost }}
+    - {{ printf "inputmsg-api.%s" .Values.ibmCloudKsHost }}
     secretName: {{ .Values.tlsSecret }}
   rules:
-  - host: {{ printf "input-msg-api.%s" .Values.ibmCloudKsHost }}
+  - host: {{ printf "inputmsg-api.%s" .Values.ibmCloudKsHost }}
     http:
       paths:
       - path: /

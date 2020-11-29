@@ -9,10 +9,12 @@ ingress:
   annotations: 
     ingress.bluemix.net/redirect-to-https: "True"
 
+# stub-endpoint docker image tag and replicas
 stubEndpoint:
   tag: latest
   replicas: 1
  
+# input-msg-api docker image tag, replicas, PVC size and basic auth config
 inputMsgApi:
   tag: latest
   replicas: 3
@@ -21,6 +23,7 @@ inputMsgApi:
     user1: pw1
     user2: pw2
 
+# unit-test-api docker image tag, replicas, PVC size and basic auth config
 unitTestApi:
   tag: latest
   replicas: 3
@@ -28,11 +31,13 @@ unitTestApi:
   auth:
     user1: pw1
     user2: pw2
-    
+
+# input-msg-collection docker image tag and cronjob schedule
 inputMsgCollection:
   tag: latest
   schedule: "*/3 * * * *"
-  
+
+# for ACE test and accp, specify the cluster-internal addres (for ACE on K8s, this is always equal to <service_name>:<namespace>), port, and an ACE user+pw  
 aceTest:
   host: ace-test-svc.ace
   port: "7600"
