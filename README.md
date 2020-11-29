@@ -306,19 +306,21 @@ stubEndpoint:
   tag: latest
   replicas: 1
  
-# eod20-input-msg-api docker image tag, replicas, PVC size and basic auth config
+# eod20-input-msg-api docker image tag, replicas, PVC class and size, and basic auth config
 inputMsgApi:
   tag: latest
   replicas: 3
+  storageClassName: ibmc-file-retain-gold
   storage: 3Gi
   auth:
     user1: pw1
     user2: pw2
 
-# eod20-unit-test-api docker image tag, replicas, PVC size and basic auth config
+# eod20-unit-test-api docker image tag, replicas, PVC class and size and basic auth config
 unitTestApi:
   tag: latest
   replicas: 3
+  storageClassName: ibmc-file-retain-gold
   storage: 3Gi
   auth:
     user1: pw1

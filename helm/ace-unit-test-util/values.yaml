@@ -18,6 +18,7 @@ stubEndpoint:
 inputMsgApi:
   tag: latest
   replicas: 3
+  storageClassName: ibmc-file-retain-gold
   storage: 3Gi
   auth:
     user1: pw1
@@ -27,6 +28,7 @@ inputMsgApi:
 unitTestApi:
   tag: latest
   replicas: 3
+  storageClassName: ibmc-file-retain-gold
   storage: 3Gi
   auth:
     user1: pw1

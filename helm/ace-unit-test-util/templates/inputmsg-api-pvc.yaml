@@ -10,4 +10,4 @@ spec:
  resources:
    requests:
      storage: {{ .Values.inputMsgApi.storage }}
- storageClassName: ibmc-file-retain-gold
+ storageClassName: {{ .Values.inputMsgApi.storageClassName }}
