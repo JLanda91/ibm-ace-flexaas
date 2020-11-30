@@ -28,7 +28,7 @@ def upload_to_inputmsg_api(upload_payload):
                                     verify=False, params=None)
     if upload_response.status_code == 201:
         print("Successful!")
-        print("Deleting the test date from the ACE server...")
+        print("Deleting the test data from the ACE server...")
         ace_conn.delete_recorded_test_data()
         print("Successful!")
     else:
