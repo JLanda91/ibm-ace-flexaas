@@ -1,11 +1,11 @@
+import json
+import os
+import re
+
 from flask import Flask, request
 from flask_httpauth import HTTPBasicAuth
-import os
-import json
-import re
+from pyace import ACERecord, subdirs_file_content_to_dict, hash_dict_values, create_dir_if_not_exists
 from werkzeug.security import check_password_hash
-from pyace.ace import ACERecord
-from pyace.kube import subdirs_file_content_to_dict, hash_dict_values, create_dir_if_not_exists
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
@@ -23,7 +23,8 @@ def timestamp_to_file(ts):
     """Function to remove 'T' and non-word characters from a timestamp string, effectively rendering a
     'yyyy-MM-ddTHHmmSS.sss formatted timestamp into a yyyyMMddHHmmSSsss timestamp
 
-    :param ts: timestamp as string
+    :param ts: timestamp
+    :type ts: string
     :returns: same string with the non-word characters and 'T' removed."""
     return re.sub(r'[T\W]+', '', ts)
 
@@ -32,6 +33,7 @@ def file_to_timestamp(f):
     """Reverse of timestamp_to_file
 
     :param f: filename (yyyyMMddHHmmSSsss timestamp)
+    :type f: string
     :returns: same string with the format restored"""
     return f"{f[:4]}-{f[4:6]}-{f[6:8]}T{f[8:10]}:{f[10:12]}:{f[12:14]}.{f[14:]}"
 
@@ -39,7 +41,8 @@ def file_to_timestamp(f):
 def save_inputmsg(record):
     """Saves the four root trees of a record to disk and creates the directories if needed
 
-    :param record: ACERecord instance"""
+    :param record: ACERecord instance
+    :type record: ACERecord"""
     print("Saving input message:")
     print("=====================")
     save_dir = os.path.join(data_dir, record.integration_server, record.application, record.message_flow,
@@ -58,6 +61,7 @@ def post_messages(req):
      and saves each input message to disk.
 
     :param req: the flask request
+    :type req: flas request
     :returns: 201 if input messages are among the payload and have been saved to disk. 204 otherwise."""
     all_records = tuple(ACERecord(elem) for elem in json.loads(req.data))
     inputmsgs = tuple(filter(lambda x: x.is_first_message, all_records))
@@ -82,6 +86,7 @@ def get_messages(req):
      to URI parameters can be specified to select on timestamp.
 
      :param req: flask request object
+     :type req: flask request
      :returns: a dictionary with server.project.flow.node.timestamp.roottree structure, and a HTTP status code"""
     integration_server = req.args.get('integration_server', '')
     project = req.args.get('project', '')
@@ -100,8 +105,7 @@ def get_messages(req):
     def path_filter(x):
         return x.startswith(path_filter_string) and ts_from <= x.split(os.path.sep)[-1] < ts_to
 
-    payload = subdirs_file_content_to_dict(data_dir, split_by_line=False, subdict_by_path=True,
-                                           path_filter=path_filter)
+    payload = subdirs_file_content_to_dict(data_dir, split_by_line=False, subdict_by_path=True, path_filter=path_filter)
     return payload, 200
 
 

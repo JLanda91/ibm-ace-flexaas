@@ -145,12 +145,12 @@ Een API met een Query resource en een exerciser.
 - XPath queries kunnen worden aangemaakt en opgevraagd per project type, project naam, message flow naam, node en terminal.
 - De exerciser slikt een testData JSON (zoals in de test records: met base64 encoded root trees) en inject dit in gespecificeerde input node van de input node van de messageflow. Recording wordt dan ingeschakeld. De records die terug komen worden gesorteert op sequence numbers en als de van/naar node en terminal matchen met de Query resource, wordt deze XPath uitgevoerd en het resultaat bewaard. De exerciser API geeft een object terug met info over de nodes en terminals die in volgorde worden geraakt, met per connectie de geraakte queries en de resultaten.
 
->```GET,POST,PUT /queries/{project_type}/{project}/{message_flow}/{node}/{terminal}``` om XPath queries te beheren die losgelaten worden op ACE records die voldoen aan de specificatie van ```project_type``` (altijd één uit ```applications```/```services```/```rest-apis```), ```project```, ```message_flow```, ```node``` en ```terminal```. Deze worden gecontroleerd op valide XPath syntax en bewaard op disk (PV) als ze voorheen niet bestonden (POST) of vervangen als ze reeds niet bestonden (PUT). Return code ```200```. Request body PUT/POST en response body GET:
+>```GET,POST,PUT /queries/{project_type}/{project}/{message_flow}/{node}/{terminal}``` om XPath queries te beheren die losgelaten worden op ACE records die voldoen aan de specificatie van ```project_type``` (altijd één uit ```applications```/```services```/```rest-apis```), ```project```, ```message_flow```, ```node``` en ```terminal```. Deze worden gecontroleerd op valide XPath syntax en bewaard op disk (PV) als ze voorheen niet bestonden (POST) of vervangen als ze reeds niet bestonden (PUT). Opmerking de vier root trees moeten, in tegenstelling tot in ESQL, in camelcase gebruikt worden :```localEnvironment``` bijvoorbeeld. Return code ```200```. Request body PUT/POST en response body GET:
 ```json
     {
         "inputmsg_booktitle": "//{tns}book//{tns}title",
         "backendresp_parsexc_bip": "//ParserException/BIP",
-        "envvar_dummy": "//Environment/Variables/Dummy",
+        "envvar_dummy": "//environment/Variables/Dummy",
         "invalid_xpath": "%^&*"
     }
 ```

@@ -1,14 +1,15 @@
 import json
 import os
+
 import requests
-from pyace.ace import ACEConnection
-from pyace.kube import subdirs_file_content_to_dict
+from pyace import ACEAdminConnection, subdirs_file_content_to_dict
 
 
 def jsonize(x):
     """Function to output the camelcased hyphenated input string: sheep-horse-cow -> sheepHorseCow
 
-    :param x: string
+    :param x: input
+    :type x: string
     :returns: camelcased string"""
     arr = x.split('-')
     arr[1:] = map(lambda x: x.capitalize(), arr[1:])
@@ -19,7 +20,8 @@ def upload_to_inputmsg_api(upload_payload):
     """Method to upload the ACE Records to the input-msg-api. Prints whether successful but does not raise errors.
     If uploading the test records was successful, the recorded data is cleaned for the ACE server
 
-    :param upload_payload: list of ACE record (as dictionary, not as the class instance)"""
+    :param upload_payload: list of ACE record (as dictionary, not as the class instance)
+    :type upload_payload: list(dict)"""
     print(f"Found {len(upload_payload)} records (not all of which are input messages)...")
     print("Uploading records to inputmsg-api...")
     upload_response = requests.post(f"http://inputmsg-api-svc:8080", auth=upload_auth, data=json.dumps(upload_payload),
@@ -38,6 +40,7 @@ def is_flow_recording_on(flow_uri):
     """Method to extract a boolean from the ACE server indicating whether recording is on for that particular flow.
 
     :param flow_uri: ACE Admin REST API Flow URI string: /apiv2/{project_type}/{project}/messageflows/{message_flow}
+    :type flow_uri: string
     :returns: boolean"""
     return ace_conn.get(uri=f"{flow_uri}", expected_rc=200, parse_json=True, params=None,
                         func=lambda x: "stop-recording" in x["actions"]["available"].keys())
@@ -52,6 +55,7 @@ def get_msgflows_of_project(project_uri):
     ("brokerSchema1.Flow1", "/apiv2/applications/Project1/messageflows/brokerSchema1.Flow1")
 
     :param project_uri: ACE Admin REST API Flow URI string: /apiv2/{project_type}/{project}
+    :type project_uri: string
     :returns: tuple of size two tuples"""
     return ace_conn.get(uri=f"{project_uri}/messageflows", expected_rc=200, parse_json=True, params=None,
                         func=lambda x: tuple((y["name"], y["uri"]) for y in x["children"]))
@@ -67,16 +71,16 @@ def get_projects_of_type(project_type):
     ("Project1", "/apiv2/rest-apis/Project1")
 
     :param project_type: choice string of applications/services/rest-apis
+    :type project_type: string
     :returns: tuple of size two tuples"""
     return ace_conn.get(uri=f"/apiv2/{project_type}", expected_rc=200, parse_json=True, params=None,
-                            func=lambda x: tuple((y["name"], y["uri"]) for y in x["children"]))
+                        func=lambda x: tuple((y["name"], y["uri"]) for y in x["children"]))
 
 
 def get_running_project_types():
     """Method to extract a dictionary with the three project types as keys and a boolean as value. This boolean will be
     True if there exists a running project on th ACE server of that project type
 
-    :param project_type: choice string of applications/services/rest-apis
     :returns: dictionary. Keys (string): the project types. Value (boolean): True if the ACE server currently has a
     project running of that type"""
     return ace_conn.get(uri="/apiv2", expected_rc=200, parse_json=True, params=None,
@@ -94,9 +98,8 @@ user, pw = list(api_users.items())[0]
 ace_auth = requests.auth.HTTPBasicAuth(ace_config["user"], ace_config["pw"])
 upload_auth = requests.auth.HTTPBasicAuth(user, pw)
 
-ace_conn = ACEConnection(host=ace_config["host"], admin_port=int(ace_config["port"]), http_port=7800, https_port=7843,
-                         admin_https=False, user=ace_config["user"], pw=ace_config["pw"])
-
+ace_conn = ACEAdminConnection(host=ace_config["host"], admin_port=int(ace_config["port"]), admin_https=False,
+                              user=ace_config["user"], pw=ace_config["pw"])
 
 # get input messages from ACE server
 print("Getting recorded test data from ACE server...")
