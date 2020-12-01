@@ -8,7 +8,7 @@ spec:
   - hosts:
     - {{ printf "ace-test-admin.%s" .Values.ibmCloudKsHost }}
     - {{ printf "ace-test-services.%s" .Values.ibmCloudKsHost }}
-    secretName: {{ .Values.tlsSecret }}
+    secretName: {{ .Values.ingress.tlsSecret }}
   rules:
   - host: {{ printf "ace-test-admin.%s" .Values.ibmCloudKsHost }}
     http:

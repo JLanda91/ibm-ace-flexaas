@@ -5,7 +5,7 @@ metadata:
   annotations: {{- toYaml .Values.ingress.annotations | nindent 4 }}
 spec:
   tls:
-  - secretName: {{ .Values.tlsSecret }}
+  - secretName: {{ .Values.ingress.tlsSecret }}
     hosts:
     - {{ printf "stub.%s" .Values.ibmCloudKsHost }}
   rules:

@@ -1,8 +1,7 @@
 # FQDN of the IBM Cloud Kubernetes service cluster
 ibmCloudKsHost: eod20-618dd4f5cf576582d05dea2fdbda72d6-0000.eu-de.containers.appdomain.cloud
 
-# TLS secret of the Application Load Balancer (ALB). In case of the IBM Cloud KS, the secret name is the same as the host prefix
-tlsSecret: eod20-618dd4f5cf576582d05dea2fdbda72d6-0000
+
 
 # Docker server (+ namespace if applicable)
 imageRepo: de.icr.io/landa
@@ -14,6 +13,8 @@ ingress:
   annotations:
     # Put ingress annotations here. These will be substituted into the annotations of all the ingresses in the chart
     ingress.bluemix.net/redirect-to-https: "True" # Redirect http to https
+    # TLS secret of the Application Load Balancer (ALB). In case of the IBM Cloud KS, the secret name is the same as the host prefix
+    tlsSecret: eod20-618dd4f5cf576582d05dea2fdbda72d6-0000
 
 # For both test and accp, define the docker image tag of eod20-ace to be used to deploy the ACE server.  
 aceTest:
