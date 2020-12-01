@@ -94,7 +94,7 @@ def process_queries(req, save_dir, replace_allowed):
         else:
             with open(os.path.join(save_dir, query_name), 'w') as f:
                 f.write(query_value)
-            result_dict[query_name] = "created"
+            result_dict[query_name] = "replaced" if replace_allowed else "created"
     if len(os.listdir(save_dir)) == 0:
         os.rmdir(save_dir)
     return result_dict, 200

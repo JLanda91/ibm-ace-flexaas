@@ -194,7 +194,7 @@ Response body:
                 ]
             },
             "envvar_dummy": {
-                "query":  "//Environment/Variables/Dummy",
+                "query":  "//environment/Variables/Dummy",
                 "result": [
                     "Dummyvalue"
                 ]
@@ -222,9 +222,17 @@ Response body:
 ]
 ```
 
-## Kubernetes architectuur
+### pyace
+Dit is geen Kubernetes component maar een Python package (3.9.0 en hoger!) met classes en veelgebruikte functionaliteit
+- ACEAdminConnection is een class, waarvan elke instance de host, port, en login op de ACE Admin bewaard wordt. Bevat enkele methodes om REST operaties uit te voeren op de ACE Admin REST API
+- ACERecord is een class die het test record als dictionary opslaat, en die direct toegankelijke properties heeft voor de gangbare attributen: bron- en doelnode, bron- en doelterminal, flow sequence volgnummer, timestamp, etc.
+- Een handige methode om bestandsinhoud in een directory recursief terug te geven in een path-content dictionary, met handige opties.
 
-### Exposen van apps
+Van een Python 3.9.0 alpine image wordt een base image gemaakt waarop dit Python package voorgeïnstalleerd is, zodat child images (de images van de andere componenten) hiervan gebruik kunnen maken. 
+
+![Overview Componenten](doc/image inheritance.png)
+
+## Kubernetes architectuur
 De meeste componenten gebruiken de volgende Kubernetes opzet:
 
 ![Overview Componenten](doc/exposing apps.png)
