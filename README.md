@@ -1,4 +1,4 @@
-# Eindopdracht 2020
+# IBM ACEv11 Flow Exercising as a Service
 
 ## Inleiding en motivatie
 Haast alle (geautomatiseerde) unit-tests van ACE projecten betreffen slechts vergelijkingen van de input- en outputberichten van de hele flow. De "unit" in dit geval is dus een hele messageflow: erg ruim voor een unit. Echter ondergaat een bericht in transit verschillende tussenstappen, langs de nodes van een messageflow. Ook deze tussenstappen in ACE zijn te bekijken (middels de ACE Admini REST API), en in het verlengde kun je hiermee dus ook tests afnemen. Dit resulteert in fijngekorrelde unit-tests.
