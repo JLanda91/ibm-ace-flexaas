@@ -230,12 +230,12 @@ Dit is geen Kubernetes component maar een Python package (3.9.0 en hoger!) met c
 
 Van een Python 3.9.0 alpine image wordt een base image gemaakt waarop dit Python package voorgeïnstalleerd is, zodat child images (de images van de andere componenten) hiervan gebruik kunnen maken. 
 
-![Overview Componenten](doc/image inheritance.png)
+![Overview Componenten](doc/image%20inheritance.png)
 
 ## Kubernetes architectuur
 De meeste componenten gebruiken de volgende Kubernetes opzet:
 
-![Overview Componenten](doc/exposing apps.png)
+![Overview Componenten](doc/exposing%20apps.png)
 
 Dit geldt voor:
 - ace-test en ace-accp (slechts één pod per test/accp deployment). Gebruikt geen PV en PVC (Persistent Volumes en Persistent Volume Claims).
